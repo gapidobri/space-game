@@ -29,6 +29,8 @@ class EngineDemoPage extends StatefulWidget {
 }
 
 class _EngineDemoPageState extends State<EngineDemoPage> {
+  static const double _gravityConstant = 1.0;
+
   late final Engine _engine;
   late final World _world;
   late final Entity _rocketEntity;
@@ -39,6 +41,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
   late final WorldStateSerializer _worldSerializer;
   late final WorldStatePersistence<String> _worldPersistence;
   late final Map<String, ui.Image> _spriteLibrary;
+  late final SpriteAnimationSystem _spriteAnimationSystem;
   CameraFollowSystem? _cameraFollowSystem;
   String? _savedWorld;
   late final Future<void> _setupFuture;
@@ -167,7 +170,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
 
     final physicsSystem = PhysicsSystem(
       world: _world,
-      gravitationalConstant: 1.0,
+      gravitationalConstant: _gravityConstant,
     );
     final collisionSystem = CollisionSystem(world: _world);
     final particleSystem = ParticleSystem(world: _world, maxParticles: 6000);
@@ -176,7 +179,8 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       RocketControlSystem(world: _world, input: _flightInput),
       700,
     );
-    _engine.addSystem(SpriteAnimationSystem(world: _world), 950);
+    _spriteAnimationSystem = SpriteAnimationSystem(world: _world);
+    _engine.addSystem(_spriteAnimationSystem, 950);
     _cameraFollowSystem = CameraFollowSystem(
       camera: _camera,
       target: _rocketEntity,
@@ -214,6 +218,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       ),
       450,
     );
+    _spriteAnimationSystem.syncNow();
   }
 
   void _addPlanet({
@@ -520,6 +525,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
                       debugStats: _debugStats,
                       physicsOverlayWorld: _world,
                       showPhysicsVectors: true,
+                      physicsGravitationalConstant: _gravityConstant,
                     ),
                   ),
                   Positioned(
@@ -569,6 +575,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       throwOnUnknownComponentType: false,
     );
     _rebuildSpritesFromTags();
+    _spriteAnimationSystem.syncNow();
     _retargetCameraFollow(snapToTarget: true);
     _debugStats.setLine('Save', 'Snapshot loaded');
   }

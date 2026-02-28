@@ -6,7 +6,7 @@ import 'package:gamengine/src/ecs/components/transform.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/render/commands/render_commands.dart';
 import 'package:gamengine/src/render/components/particle_emitter.dart';
-import 'package:gamengine/src/render/render_queue.dart';
+import 'package:gamengine/src/render/core/render_queue.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class ParticleSystem extends System {

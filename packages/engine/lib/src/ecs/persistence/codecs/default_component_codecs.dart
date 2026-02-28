@@ -6,6 +6,7 @@ import 'package:gamengine/src/ecs/persistence/serializers/world_state_serializer
 import 'package:gamengine/src/physics/components/collider.dart';
 import 'package:gamengine/src/physics/components/gravity_source.dart';
 import 'package:gamengine/src/physics/components/rigid_body.dart';
+import 'package:gamengine/src/render/components/animated_sprite.dart';
 import 'package:gamengine/src/render/components/particle_emitter.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -16,6 +17,7 @@ class DefaultWorldComponentCodecs {
     serializer.registerCodec<Collider>(_ColliderCodec());
     serializer.registerCodec<GravitySource>(_GravitySourceCodec());
     serializer.registerCodec<ParticleEmitter>(_ParticleEmitterCodec());
+    serializer.registerCodec<AnimatedSprite>(_AnimatedSpriteCodec());
   }
 }
 
@@ -162,13 +164,25 @@ class _ParticleEmitterCodec extends ComponentCodec<ParticleEmitter> {
       drag: _readDouble(data, 'drag', fallback: 0),
       z: _readInt(data, 'z', fallback: 1),
       localOffset: _readVector2(data, 'localOffset'),
-      localDirection: _readVector2(data, 'localDirection', fallback: Vector2(0, 1)),
+      localDirection: _readVector2(
+        data,
+        'localDirection',
+        fallback: Vector2(0, 1),
+      ),
       alignToRotation: _readBool(data, 'alignToRotation', fallback: true),
       colorStart: Color(
-        _readInt(data, 'colorStart', fallback: const Color(0xFFFFE08A).toARGB32()),
+        _readInt(
+          data,
+          'colorStart',
+          fallback: const Color(0xFFFFE08A).toARGB32(),
+        ),
       ),
       colorEnd: Color(
-        _readInt(data, 'colorEnd', fallback: const Color(0x00FF6A00).toARGB32()),
+        _readInt(
+          data,
+          'colorEnd',
+          fallback: const Color(0x00FF6A00).toARGB32(),
+        ),
       ),
     );
 
@@ -203,6 +217,43 @@ class _ParticleEmitterCodec extends ComponentCodec<ParticleEmitter> {
   }
 }
 
+class _AnimatedSpriteCodec extends ComponentCodec<AnimatedSprite> {
+  @override
+  String get typeId => 'render.animatedSprite';
+
+  @override
+  AnimatedSprite decode(Map<String, Object?> data) {
+    final animatedSprite = AnimatedSprite(
+      frameWidth: _readInt(data, 'frameWidth', fallback: 0),
+      frameHeight: _readInt(data, 'frameHeight', fallback: 0),
+      frameCount: _readInt(data, 'frameCount', fallback: 0),
+      firstFrame: _readInt(data, 'firstFrame', fallback: 0),
+      framesPerSecond: _readDouble(data, 'framesPerSecond', fallback: 0),
+      loop: _readBool(data, 'loop', fallback: true),
+      playing: _readBool(data, 'playing', fallback: true),
+    );
+
+    animatedSprite.currentFrame = _readInt(data, 'currentFrame', fallback: 0);
+    animatedSprite.elapsedTime = _readDouble(data, 'elapsedTime', fallback: 0);
+    return animatedSprite;
+  }
+
+  @override
+  Map<String, Object?> encode(AnimatedSprite component) {
+    return {
+      'frameWidth': component.frameWidth,
+      'frameHeight': component.frameHeight,
+      'frameCount': component.frameCount,
+      'firstFrame': component.firstFrame,
+      'framesPerSecond': component.framesPerSecond,
+      'loop': component.loop,
+      'playing': component.playing,
+      'currentFrame': component.currentFrame,
+      'elapsedTime': component.elapsedTime,
+    };
+  }
+}
+
 List<Object?> _vector2ToList(Vector2 value) => <Object?>[value.x, value.y];
 
 Vector2 _readVector2(
@@ -233,11 +284,7 @@ double _readDouble(
   return value is num ? value.toDouble() : fallback;
 }
 
-int _readInt(
-  Map<String, Object?> data,
-  String key, {
-  required int fallback,
-}) {
+int _readInt(Map<String, Object?> data, String key, {required int fallback}) {
   final value = data[key];
   return value is num ? value.toInt() : fallback;
 }

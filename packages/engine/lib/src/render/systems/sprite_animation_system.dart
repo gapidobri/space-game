@@ -15,6 +15,16 @@ class SpriteAnimationSystem extends System {
 
   @override
   void update(double dt) {
+    _syncInternal(dt: dt, advanceTime: true);
+  }
+
+  /// Applies source rects for all animated sprites immediately without
+  /// advancing animation time.
+  void syncNow() {
+    _syncInternal(dt: 0, advanceTime: false);
+  }
+
+  void _syncInternal({required double dt, required bool advanceTime}) {
     for (final entity in world.query2<Sprite, AnimatedSprite>()) {
       final sprite = world.get<Sprite>(entity);
       final animation = world.get<AnimatedSprite>(entity);
@@ -31,7 +41,7 @@ class SpriteAnimationSystem extends System {
       }
 
       final fps = animation.framesPerSecond;
-      if (animation.playing && fps > 0 && dt > 0) {
+      if (advanceTime && animation.playing && fps > 0 && dt > 0) {
         final frameDuration = 1.0 / fps;
         animation.elapsedTime += dt;
 
@@ -69,7 +79,14 @@ class SpriteAnimationSystem extends System {
       return;
     }
 
-    final frameIndex = animation.firstFrame + animation.currentFrame;
+    var frame = animation.currentFrame;
+    if (frame < 0) {
+      frame = 0;
+    } else if (frame >= animation.frameCount) {
+      frame = animation.frameCount - 1;
+    }
+
+    final frameIndex = animation.firstFrame + frame;
     final col = frameIndex % columns;
     final row = frameIndex ~/ columns;
 

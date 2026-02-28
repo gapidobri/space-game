@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gamengine/src/render/camera_state.dart';
+import 'package:gamengine/src/render/camera/camera_state.dart';
 import 'package:gamengine/src/render/commands/render_commands.dart';
-import 'package:gamengine/src/render/render_queue.dart';
+import 'package:gamengine/src/render/core/render_queue.dart';
 
 class Painter extends CustomPainter {
   final RenderQueue queue;

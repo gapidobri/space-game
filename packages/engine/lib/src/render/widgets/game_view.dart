@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:gamengine/src/ecs/engine.dart';
 import 'package:gamengine/src/ecs/world.dart';
+import 'package:gamengine/src/physics/physics_system.dart';
 import 'package:gamengine/src/physics/debug/physics_vectors_overlay.dart';
-import 'package:gamengine/src/render/camera_state.dart';
+import 'package:gamengine/src/render/camera/camera_state.dart';
 import 'package:gamengine/src/render/debug/debug_overlay.dart';
 import 'package:gamengine/src/render/debug/debug_stats.dart';
-import 'package:gamengine/src/render/painter.dart';
-import 'package:gamengine/src/render/render_queue.dart';
+import 'package:gamengine/src/render/backends/painter.dart';
+import 'package:gamengine/src/render/core/render_queue.dart';
 
 class GameView extends StatefulWidget {
   final Engine engine;
@@ -16,6 +17,7 @@ class GameView extends StatefulWidget {
   final DebugStats? debugStats;
   final World? physicsOverlayWorld;
   final bool showPhysicsVectors;
+  final double physicsGravitationalConstant;
   final bool autoStart;
 
   const GameView({
@@ -26,6 +28,8 @@ class GameView extends StatefulWidget {
     this.debugStats,
     this.physicsOverlayWorld,
     this.showPhysicsVectors = false,
+    this.physicsGravitationalConstant =
+        PhysicsSystem.universalGravitationalConstant,
     this.autoStart = true,
   });
 

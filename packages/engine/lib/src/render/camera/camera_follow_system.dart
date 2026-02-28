@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:gamengine/src/ecs/entity.dart';
 import 'package:gamengine/src/ecs/system.dart';
 import 'package:gamengine/src/ecs/components/transform.dart';
-import 'package:gamengine/src/render/camera_state.dart';
+import 'package:gamengine/src/render/camera/camera_state.dart';
 
 class CameraFollowSystem extends System {
   final CameraState camera;

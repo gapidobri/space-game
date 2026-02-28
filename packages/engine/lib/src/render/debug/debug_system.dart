@@ -1,6 +1,6 @@
 import 'package:gamengine/src/ecs/system.dart';
 import 'package:gamengine/src/render/debug/debug_stats.dart';
-import 'package:gamengine/src/render/render_metrics.dart';
+import 'package:gamengine/src/render/core/render_metrics.dart';
 
 class DebugSystem extends System {
   final DebugStats stats;

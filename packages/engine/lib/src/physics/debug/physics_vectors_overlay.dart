@@ -4,8 +4,8 @@ import 'package:flutter/material.dart' hide Transform;
 import 'package:gamengine/src/ecs/components/transform.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/physics/components/rigid_body.dart';
-import 'package:gamengine/src/render/camera_state.dart';
-import 'package:gamengine/src/render/render_queue.dart';
+import 'package:gamengine/src/render/camera/camera_state.dart';
+import 'package:gamengine/src/render/core/render_queue.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class PhysicsVectorsOverlay extends StatelessWidget {
@@ -63,6 +63,9 @@ class _PhysicsVectorsPainter extends CustomPainter {
     for (final entity in world.query2<Transform, RigidBody>()) {
       final transform = world.get<Transform>(entity);
       final rigidBody = world.get<RigidBody>(entity);
+      if (rigidBody.isStatic || !rigidBody.useGravity) {
+        continue;
+      }
 
       final position = _worldToScreen(transform.position, size);
       final velocityEnd = Offset(
@@ -108,8 +111,12 @@ class _PhysicsVectorsPainter extends CustomPainter {
   }
 
   Offset _worldToScreen(Vector2 worldPosition, Size size) {
-    final dx = (worldPosition.x - camera.position.x) * camera.zoom;
-    final dy = (worldPosition.y - camera.position.y) * camera.zoom;
+    return _worldToScreenXY(worldPosition.x, worldPosition.y, size);
+  }
+
+  Offset _worldToScreenXY(double x, double y, Size size) {
+    final dx = (x - camera.position.x) * camera.zoom;
+    final dy = (y - camera.position.y) * camera.zoom;
     return Offset((size.width * 0.5) + dx, (size.height * 0.5) + dy);
   }
 
