@@ -3,6 +3,8 @@ import 'package:gamengine/src/ecs/components/component.dart';
 class Entity {
   final _components = <Type, Component>{};
 
+  Iterable<Component> get components => _components.values;
+
   void add(Component component) {
     _components[component.runtimeType] = component;
   }

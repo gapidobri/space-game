@@ -36,6 +36,11 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
   late final RenderMetrics _renderMetrics;
   late final DebugStats _debugStats;
   late final CameraState _camera;
+  late final WorldStateSerializer _worldSerializer;
+  late final WorldStatePersistence<String> _worldPersistence;
+  late final Map<String, ui.Image> _spriteLibrary;
+  CameraFollowSystem? _cameraFollowSystem;
+  String? _savedWorld;
   late final Future<void> _setupFuture;
 
   final FocusNode _focusNode = FocusNode();
@@ -50,6 +55,14 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     _queue = RenderQueue();
     _renderMetrics = RenderMetrics();
     _debugStats = DebugStats();
+    _worldSerializer = WorldStateSerializer();
+    DefaultWorldComponentCodecs.register(_worldSerializer);
+    _worldSerializer.registerCodec<RocketPilot>(_RocketPilotCodec());
+    _worldSerializer.registerCodec<SpriteAssetTag>(_SpriteAssetTagCodec());
+    _worldPersistence = WorldStatePersistence(
+      serializer: _worldSerializer,
+      format: JsonWorldStateFormat(),
+    );
     _camera = CameraState()
       ..zoom = 1
       ..cullingPadding = 280
@@ -105,26 +118,22 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       ),
     ];
 
-    _addPlanet(
-      x: 0,
-      y: 0,
-      radius: 90,
-      mass: 420000,
-      spriteImage: planetImages[0],
-    );
-    _addPlanet(
-      x: 920,
-      y: -420,
-      radius: 72,
-      mass: 260000,
-      spriteImage: planetImages[1],
-    );
+    _spriteLibrary = <String, ui.Image>{
+      'rocket': rocketImage,
+      'rock': rockImage,
+      'planetA': planetImages[0],
+      'planetB': planetImages[1],
+      'planetC': planetImages[2],
+    };
+
+    _addPlanet(x: 0, y: 0, radius: 90, mass: 420000, spriteKey: 'planetA');
+    _addPlanet(x: 920, y: -420, radius: 72, mass: 260000, spriteKey: 'planetB');
     _addPlanet(
       x: -980,
       y: 520,
       radius: 110,
       mass: 550000,
-      spriteImage: planetImages[2],
+      spriteKey: 'planetC',
     );
 
     _rocketEntity = _addRocket(
@@ -133,8 +142,9 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       orbitCenterX: 0,
       orbitCenterY: 0,
       orbitMass: 420000,
-      spriteImage: rocketImage,
+      spriteKey: 'rocket',
     );
+    _snapCameraToEntity(_rocketEntity);
 
     _spawnDebrisField(
       centerX: 0,
@@ -143,7 +153,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       count: 18,
       minRadius: 180,
       maxRadius: 440,
-      spriteImage: rockImage,
+      spriteKey: 'rock',
     );
     _spawnDebrisField(
       centerX: 920,
@@ -152,7 +162,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       count: 12,
       minRadius: 150,
       maxRadius: 320,
-      spriteImage: rockImage,
+      spriteKey: 'rock',
     );
 
     final physicsSystem = PhysicsSystem(
@@ -166,10 +176,12 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       RocketControlSystem(world: _world, input: _flightInput),
       700,
     );
-    _engine.addSystem(
-      CameraFollowSystem(camera: _camera, target: _rocketEntity),
-      650,
+    _engine.addSystem(SpriteAnimationSystem(world: _world), 950);
+    _cameraFollowSystem = CameraFollowSystem(
+      camera: _camera,
+      target: _rocketEntity,
     );
+    _engine.addSystem(_cameraFollowSystem!, 650);
     _engine.addSystem(physicsSystem, 500);
     _engine.addSystem(collisionSystem, 490);
     _engine.addSystem(
@@ -209,7 +221,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     required double y,
     required double radius,
     required double mass,
-    required ui.Image spriteImage,
+    required String spriteKey,
   }) {
     final entity = Entity();
     final transform = Transform();
@@ -226,7 +238,8 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
         dynamicFriction: 0.72,
       ),
     );
-    entity.add(Sprite(image: spriteImage, visible: true));
+    entity.add(SpriteAssetTag(spriteKey));
+    entity.add(Sprite(image: _spriteLibrary[spriteKey], visible: true));
 
     _engine.addEntity(entity);
   }
@@ -237,7 +250,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     required double orbitCenterX,
     required double orbitCenterY,
     required double orbitMass,
-    required ui.Image spriteImage,
+    required String spriteKey,
   }) {
     final entity = Entity();
     final transform = Transform();
@@ -297,7 +310,18 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     entity.add(
       RocketPilot(thrustForce: 1050, turnSpeed: 5.0, boostMultiplier: 2.2),
     );
-    entity.add(Sprite(image: spriteImage, visible: true));
+    entity.add(
+      AnimatedSprite(
+        frameWidth: 34,
+        frameHeight: 56,
+        frameCount: 4,
+        framesPerSecond: 14,
+        loop: true,
+        playing: false,
+      ),
+    );
+    entity.add(SpriteAssetTag(spriteKey));
+    entity.add(Sprite(image: _spriteLibrary[spriteKey], visible: true));
 
     _engine.addEntity(entity);
     return entity;
@@ -310,7 +334,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     required int count,
     required double minRadius,
     required double maxRadius,
-    required ui.Image spriteImage,
+    required String spriteKey,
   }) {
     for (var i = 0; i < count; i++) {
       final angle = _rng.nextDouble() * math.pi * 2;
@@ -348,57 +372,69 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
           dynamicFriction: 0.62,
         ),
       );
-      entity.add(Sprite(image: spriteImage, visible: true));
+      entity.add(SpriteAssetTag(spriteKey));
+      entity.add(Sprite(image: _spriteLibrary[spriteKey], visible: true));
 
       _engine.addEntity(entity);
     }
   }
 
   Future<ui.Image> _createRocketImage() async {
-    const width = 34.0;
-    const height = 56.0;
+    const frameWidth = 34.0;
+    const frameHeight = 56.0;
+    const frames = 4;
+    const width = frameWidth * frames;
+    const height = frameHeight;
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final glowPaint = Paint()..color = const Color(0xAA0D1A2E);
     final hullPaint = Paint()..color = const Color(0xFFE2E8F0);
     final accentPaint = Paint()..color = const Color(0xFF38BDF8);
     final finPaint = Paint()..color = const Color(0xFFFF6B6B);
+    const flames = <double>[0.0, 6.0, 10.0, 14.0];
+    for (var frame = 0; frame < frames; frame++) {
+      final dx = frame * frameWidth;
+      final flame = flames[frame];
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, width, height),
-        const Radius.circular(18),
-      ),
-      glowPaint,
-    );
+      final bodyRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(dx + 7, 8, frameWidth - 14, frameHeight - 16),
+        const Radius.circular(10),
+      );
+      canvas.drawRRect(bodyRect, hullPaint);
 
-    final bodyRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(7, 8, width - 14, height - 16),
-      const Radius.circular(10),
-    );
-    canvas.drawRRect(bodyRect, hullPaint);
+      final nose = Path()
+        ..moveTo(dx + (frameWidth / 2), 0)
+        ..lineTo(dx + frameWidth - 8, 14)
+        ..lineTo(dx + 8, 14)
+        ..close();
+      canvas.drawPath(nose, accentPaint);
 
-    final nose = Path()
-      ..moveTo(width / 2, 0)
-      ..lineTo(width - 8, 14)
-      ..lineTo(8, 14)
-      ..close();
-    canvas.drawPath(nose, accentPaint);
+      final leftFin = Path()
+        ..moveTo(dx + 7, frameHeight - 10)
+        ..lineTo(dx + 1, frameHeight)
+        ..lineTo(dx + 11, frameHeight - 3)
+        ..close();
+      final rightFin = Path()
+        ..moveTo(dx + frameWidth - 7, frameHeight - 10)
+        ..lineTo(dx + frameWidth - 1, frameHeight)
+        ..lineTo(dx + frameWidth - 11, frameHeight - 3)
+        ..close();
+      canvas.drawPath(leftFin, finPaint);
+      canvas.drawPath(rightFin, finPaint);
 
-    final leftFin = Path()
-      ..moveTo(7, height - 10)
-      ..lineTo(1, height)
-      ..lineTo(11, height - 3)
-      ..close();
-    final rightFin = Path()
-      ..moveTo(width - 7, height - 10)
-      ..lineTo(width - 1, height)
-      ..lineTo(width - 11, height - 3)
-      ..close();
-    canvas.drawPath(leftFin, finPaint);
-    canvas.drawPath(rightFin, finPaint);
+      if (flame > 0) {
+        final flamePath = Path()
+          ..moveTo(dx + (frameWidth / 2), frameHeight + flame)
+          ..lineTo(dx + frameWidth * 0.62, frameHeight - 4)
+          ..lineTo(dx + frameWidth * 0.38, frameHeight - 4)
+          ..close();
+        canvas.drawPath(
+          flamePath,
+          Paint()..color = const Color(0xFFFFB347),
+        );
+      }
+    }
 
     final picture = recorder.endRecording();
     return picture.toImage(width.toInt(), height.toInt());
@@ -486,6 +522,15 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
                       showPhysicsVectors: true,
                     ),
                   ),
+                  Positioned(
+                    top: 14,
+                    right: 14,
+                    child: _SaveLoadPanel(
+                      hasSave: _savedWorld != null,
+                      onSave: _saveWorld,
+                      onLoad: _loadWorld,
+                    ),
+                  ),
                   const Positioned(
                     right: 14,
                     bottom: 14,
@@ -498,6 +543,82 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
         ),
       ),
     );
+  }
+
+  void _saveWorld() {
+    final serialized = _worldPersistence.encodeWorld(
+      _world,
+      throwOnUnregisteredComponent: false,
+    );
+    setState(() {
+      _savedWorld = serialized;
+    });
+    _debugStats.setLine('Save', 'Snapshot stored (${serialized.length} bytes)');
+  }
+
+  void _loadWorld() {
+    final serialized = _savedWorld;
+    if (serialized == null) {
+      return;
+    }
+
+    _worldPersistence.decodeIntoWorld(
+      _world,
+      serialized,
+      clearWorld: true,
+      throwOnUnknownComponentType: false,
+    );
+    _rebuildSpritesFromTags();
+    _retargetCameraFollow(snapToTarget: true);
+    _debugStats.setLine('Save', 'Snapshot loaded');
+  }
+
+  void _rebuildSpritesFromTags() {
+    for (final entity in _world.entities) {
+      final tag = entity.get<SpriteAssetTag>();
+      if (tag == null) {
+        continue;
+      }
+      final image = _spriteLibrary[tag.key];
+      if (image == null) {
+        continue;
+      }
+
+      entity.remove(Sprite);
+      entity.add(Sprite(image: image, visible: true));
+    }
+  }
+
+  void _retargetCameraFollow({bool snapToTarget = false}) {
+    Entity? rocket;
+    for (final entity in _world.entities) {
+      if (entity.get<RocketPilot>() != null) {
+        rocket = entity;
+        break;
+      }
+    }
+    if (rocket == null) {
+      return;
+    }
+    if (snapToTarget) {
+      _snapCameraToEntity(rocket);
+    }
+
+    final oldFollow = _cameraFollowSystem;
+    if (oldFollow != null) {
+      _engine.removeSystem(oldFollow);
+    }
+    _cameraFollowSystem = CameraFollowSystem(camera: _camera, target: rocket);
+    _engine.addSystem(_cameraFollowSystem!, 650);
+  }
+
+  void _snapCameraToEntity(Entity entity) {
+    final transform = entity.get<Transform>();
+    if (transform == null) {
+      return;
+    }
+    _camera.position.x = transform.position.x;
+    _camera.position.y = transform.position.y;
   }
 }
 
@@ -526,6 +647,42 @@ class _ControlHint extends StatelessWidget {
   }
 }
 
+class _SaveLoadPanel extends StatelessWidget {
+  final bool hasSave;
+  final VoidCallback onSave;
+  final VoidCallback onLoad;
+
+  const _SaveLoadPanel({
+    required this.hasSave,
+    required this.onSave,
+    required this.onLoad,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x99000000),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(onPressed: onSave, child: const Text('Save')),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: hasSave ? onLoad : null,
+              child: const Text('Load'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class FlightInputState {
   bool turnLeft = false;
   bool turnRight = false;
@@ -545,6 +702,56 @@ class RocketPilot extends Component {
   });
 }
 
+class SpriteAssetTag extends Component {
+  final String key;
+
+  SpriteAssetTag(this.key);
+}
+
+class _RocketPilotCodec extends ComponentCodec<RocketPilot> {
+  @override
+  String get typeId => 'demo.rocketPilot';
+
+  @override
+  RocketPilot decode(Map<String, Object?> data) {
+    return RocketPilot(
+      thrustForce: _readDouble(data, 'thrustForce', 1050),
+      turnSpeed: _readDouble(data, 'turnSpeed', 5),
+      boostMultiplier: _readDouble(data, 'boostMultiplier', 2.2),
+    );
+  }
+
+  @override
+  Map<String, Object?> encode(RocketPilot component) {
+    return <String, Object?>{
+      'thrustForce': component.thrustForce,
+      'turnSpeed': component.turnSpeed,
+      'boostMultiplier': component.boostMultiplier,
+    };
+  }
+}
+
+class _SpriteAssetTagCodec extends ComponentCodec<SpriteAssetTag> {
+  @override
+  String get typeId => 'demo.spriteAssetTag';
+
+  @override
+  SpriteAssetTag decode(Map<String, Object?> data) {
+    final value = data['key'];
+    return SpriteAssetTag(value is String ? value : '');
+  }
+
+  @override
+  Map<String, Object?> encode(SpriteAssetTag component) {
+    return <String, Object?>{'key': component.key};
+  }
+}
+
+double _readDouble(Map<String, Object?> data, String key, double fallback) {
+  final value = data[key];
+  return value is num ? value.toDouble() : fallback;
+}
+
 class RocketControlSystem extends System {
   final World world;
   final FlightInputState input;
@@ -561,6 +768,7 @@ class RocketControlSystem extends System {
       final body = world.get<RigidBody>(entity);
       final pilot = world.get<RocketPilot>(entity);
       final emitter = entity.get<ParticleEmitter>();
+      final animation = entity.get<AnimatedSprite>();
 
       var turnInput = 0.0;
       if (input.turnLeft) {
@@ -575,6 +783,12 @@ class RocketControlSystem extends System {
         if (emitter != null) {
           emitter.emissionRate = 0;
         }
+        if (animation != null) {
+          animation
+            ..playing = false
+            ..currentFrame = 0
+            ..elapsedTime = 0;
+        }
         continue;
       }
 
@@ -582,6 +796,11 @@ class RocketControlSystem extends System {
       final thrust = pilot.thrustForce * boost;
       if (emitter != null) {
         emitter.emissionRate = 100.0 * boost;
+      }
+      if (animation != null) {
+        animation
+          ..playing = true
+          ..framesPerSecond = 12.0 * boost;
       }
 
       final sinR = math.sin(transform.rotation);

@@ -5,6 +5,7 @@ class World {
   final List<Entity> _entities = <Entity>[];
 
   Iterable<Entity> get entities => _entities;
+  int get entityCount => _entities.length;
 
   void addEntity(Entity entity) {
     _entities.add(entity);
@@ -12,6 +13,10 @@ class World {
 
   void removeEntity(Entity entity) {
     _entities.remove(entity);
+  }
+
+  void clear() {
+    _entities.clear();
   }
 
   T get<T extends Component>(Entity entity) {
