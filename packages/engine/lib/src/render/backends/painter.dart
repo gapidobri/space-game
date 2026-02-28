@@ -7,10 +7,17 @@ class Painter extends CustomPainter {
   final RenderQueue queue;
   final Paint _spritePaint = Paint();
   final Paint _circlePaint = Paint();
+  final List<RSTransform> _atlasTransforms = <RSTransform>[];
+  final List<Rect> _atlasSources = <Rect>[];
 
   final CameraState camera;
+  final bool useAtlasBatching;
 
-  Painter({required this.queue, CameraState? camera})
+  Painter({
+    required this.queue,
+    CameraState? camera,
+    this.useAtlasBatching = true,
+  })
     : camera = camera ?? CameraState(),
       super(repaint: queue);
 
@@ -24,31 +31,44 @@ class Painter extends CustomPainter {
     canvas.scale(camera.zoom);
     canvas.translate(-camera.position.x, -camera.position.y);
 
+    DrawSpriteCommand? batchSeed;
+
     for (final command in queue.commands) {
       switch (command) {
         case DrawSpriteCommand():
-          _drawSprite(canvas, command);
+          if (useAtlasBatching && _isAtlasEligible(command)) {
+            final seed = batchSeed;
+            if (seed == null ||
+                seed.image != command.image ||
+                seed.z != command.z) {
+              _flushSpriteBatch(canvas, batchSeed);
+              batchSeed = command;
+            }
+            _pushSpriteToBatch(command);
+          } else {
+            _flushSpriteBatch(canvas, batchSeed);
+            batchSeed = null;
+            _drawSprite(canvas, command);
+          }
           break;
         case DrawCircleCommand():
+          _flushSpriteBatch(canvas, batchSeed);
+          batchSeed = null;
           _drawCircle(canvas, command);
           break;
         default:
+          _flushSpriteBatch(canvas, batchSeed);
+          batchSeed = null;
           break;
       }
     }
+    _flushSpriteBatch(canvas, batchSeed);
 
     canvas.restore();
   }
 
   void _drawSprite(Canvas canvas, DrawSpriteCommand cmd) {
-    final src =
-        cmd.src ??
-        Rect.fromLTWH(
-          0,
-          0,
-          cmd.image.width.toDouble(),
-          cmd.image.height.toDouble(),
-        );
+    final src = _resolveSpriteSource(cmd);
     final w = src.width * cmd.scaleX;
     final h = src.height * cmd.scaleY;
 
@@ -63,6 +83,60 @@ class Painter extends CustomPainter {
     canvas.drawImageRect(cmd.image, src, dst, _spritePaint);
 
     canvas.restore();
+  }
+
+  Rect _resolveSpriteSource(DrawSpriteCommand cmd) {
+    return cmd.src ??
+        Rect.fromLTWH(
+          0,
+          0,
+          cmd.image.width.toDouble(),
+          cmd.image.height.toDouble(),
+        );
+  }
+
+  bool _isAtlasEligible(DrawSpriteCommand cmd) {
+    final sx = cmd.scaleX;
+    final sy = cmd.scaleY;
+    if (sx <= 0 || sy <= 0) {
+      return false;
+    }
+    return (sx - sy).abs() < 0.0001;
+  }
+
+  void _pushSpriteToBatch(DrawSpriteCommand cmd) {
+    final src = _resolveSpriteSource(cmd);
+    _atlasSources.add(src);
+    _atlasTransforms.add(
+      RSTransform.fromComponents(
+        rotation: cmd.rotation,
+        scale: cmd.scaleX,
+        anchorX: cmd.anchor.dx * src.width,
+        anchorY: cmd.anchor.dy * src.height,
+        translateX: cmd.position.dx,
+        translateY: cmd.position.dy,
+      ),
+    );
+  }
+
+  void _flushSpriteBatch(Canvas canvas, DrawSpriteCommand? seed) {
+    if (seed == null || _atlasTransforms.isEmpty) {
+      _atlasTransforms.clear();
+      _atlasSources.clear();
+      return;
+    }
+
+    canvas.drawAtlas(
+      seed.image,
+      _atlasTransforms,
+      _atlasSources,
+      null,
+      BlendMode.srcOver,
+      null,
+      _spritePaint,
+    );
+    _atlasTransforms.clear();
+    _atlasSources.clear();
   }
 
   void _drawCircle(Canvas canvas, DrawCircleCommand cmd) {

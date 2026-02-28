@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:gamengine/src/ecs/entity.dart';
+import 'package:gamengine/src/ecs/events/event_bus.dart';
 import 'package:gamengine/src/ecs/system.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/physics/collision_event.dart';
@@ -11,6 +12,7 @@ import 'package:vector_math/vector_math_64.dart';
 
 class CollisionSystem extends System {
   final World world;
+  final EventBus? eventBus;
   final double positionCorrectionPercent;
   final double positionCorrectionSlop;
 
@@ -24,6 +26,7 @@ class CollisionSystem extends System {
 
   CollisionSystem({
     required this.world,
+    this.eventBus,
     this.positionCorrectionPercent = 0.8,
     this.positionCorrectionSlop = 0.01,
   });
@@ -92,16 +95,16 @@ class CollisionSystem extends System {
           ..scale(colliderA.radius)
           ..add(transformA.position);
 
-        _events.add(
-          CollisionEvent(
-            entityA: entityA,
-            entityB: entityB,
-            point: Vector2.copy(_contactPoint),
-            normal: Vector2.copy(_normal),
-            relativeSpeed: relativeSpeed,
-            penetration: penetration,
-          ),
+        final event = CollisionEvent(
+          entityA: entityA,
+          entityB: entityB,
+          point: Vector2.copy(_contactPoint),
+          normal: Vector2.copy(_normal),
+          relativeSpeed: relativeSpeed,
+          penetration: penetration,
         );
+        _events.add(event);
+        eventBus?.emit(event);
 
         _resolvePosition(
           transformA: transformA,

@@ -11,6 +11,7 @@
 - Components: small, focused data containers.
 - Systems: operate on component sets and contain behavior.
 - Avoid mixing rendering, input, physics, and gameplay rules in one system unless truly necessary.
+- When creating/updating components and systems, also update the serialization code to ensure they are saved/loaded correctly.
 
 ## Code Size and Style
 - Follow good engineering practices and maintain a clear, consistent folder structure.

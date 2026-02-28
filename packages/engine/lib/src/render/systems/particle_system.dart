@@ -3,13 +3,14 @@ import 'dart:ui';
 
 import 'package:gamengine/src/ecs/system.dart';
 import 'package:gamengine/src/ecs/components/transform.dart';
+import 'package:gamengine/src/ecs/persistence/snapshots/snapshot_participant.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/render/commands/render_commands.dart';
 import 'package:gamengine/src/render/components/particle_emitter.dart';
 import 'package:gamengine/src/render/core/render_queue.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-class ParticleSystem extends System {
+class ParticleSystem extends System implements SnapshotParticipant {
   final World world;
   final math.Random _rng;
   final int maxParticles;
@@ -30,6 +31,13 @@ class ParticleSystem extends System {
   int get priority => 480;
 
   int get aliveCount => _particles.length;
+
+  @override
+  String get snapshotId => 'render.particleSystem';
+
+  void clearParticles() {
+    _particles.clear();
+  }
 
   @override
   void update(double dt) {
@@ -241,6 +249,90 @@ class ParticleSystem extends System {
   }
 
   double _lerp(double a, double b, double t) => a + ((b - a) * t);
+
+  Map<String, Object?> exportState() {
+    final particles = <Object?>[];
+    for (final p in _particles) {
+      particles.add(<String, Object?>{
+        'position': <Object?>[p.position.x, p.position.y],
+        'velocity': <Object?>[p.velocity.x, p.velocity.y],
+        'lifetime': p.lifetime,
+        'age': p.age,
+        'sizeStart': p.sizeStart,
+        'sizeEnd': p.sizeEnd,
+        'drag': p.drag,
+        'colorStart': p.colorStart.toARGB32(),
+        'colorEnd': p.colorEnd.toARGB32(),
+        'z': p.z,
+      });
+    }
+
+    return <String, Object?>{'schemaVersion': 1, 'particles': particles};
+  }
+
+  void importState(Map<String, Object?> state, {bool clearExisting = true}) {
+    if (clearExisting) {
+      _particles.clear();
+    }
+
+    final rawParticles = state['particles'];
+    if (rawParticles is! List) {
+      return;
+    }
+
+    for (final raw in rawParticles) {
+      if (_particles.length >= maxParticles) {
+        return;
+      }
+      if (raw is! Map) {
+        continue;
+      }
+
+      final entry = Map<String, Object?>.from(raw);
+      final position = _readVector2(entry, 'position');
+      final velocity = _readVector2(entry, 'velocity');
+      final lifetime = _readDouble(entry, 'lifetime', fallback: 0);
+      if (lifetime <= 0) {
+        continue;
+      }
+
+      final particle = _Particle(
+        position: position,
+        velocity: velocity,
+        lifetime: lifetime,
+        sizeStart: _readDouble(entry, 'sizeStart', fallback: 1),
+        sizeEnd: _readDouble(entry, 'sizeEnd', fallback: 0),
+        drag: _readDouble(entry, 'drag', fallback: 0),
+        colorStart: Color(_readInt(entry, 'colorStart', fallback: 0xFFFFFFFF)),
+        colorEnd: Color(_readInt(entry, 'colorEnd', fallback: 0x00FFFFFF)),
+        z: _readInt(entry, 'z', fallback: 1),
+      );
+
+      final age = _readDouble(entry, 'age', fallback: 0);
+      particle.age = age.clamp(0, lifetime);
+      _particles.add(particle);
+    }
+  }
+
+  @override
+  Object? exportSnapshot() => exportState();
+
+  @override
+  void importSnapshot(Object? snapshot) {
+    if (snapshot == null) {
+      clearParticles();
+      return;
+    }
+    if (snapshot is Map<String, Object?>) {
+      importState(snapshot);
+      return;
+    }
+    if (snapshot is Map) {
+      importState(Map<String, Object?>.from(snapshot));
+      return;
+    }
+    clearParticles();
+  }
 }
 
 class _Particle {
@@ -277,4 +369,30 @@ class _Particle {
     if (t >= 1) return 1;
     return t;
   }
+}
+
+Vector2 _readVector2(Map<String, Object?> data, String key) {
+  final value = data[key];
+  if (value is List && value.length >= 2) {
+    final x = (value[0] as num?)?.toDouble();
+    final y = (value[1] as num?)?.toDouble();
+    if (x != null && y != null) {
+      return Vector2(x, y);
+    }
+  }
+  return Vector2.zero();
+}
+
+double _readDouble(
+  Map<String, Object?> data,
+  String key, {
+  required double fallback,
+}) {
+  final value = data[key];
+  return value is num ? value.toDouble() : fallback;
+}
+
+int _readInt(Map<String, Object?> data, String key, {required int fallback}) {
+  final value = data[key];
+  return value is num ? value.toInt() : fallback;
 }

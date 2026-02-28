@@ -1,7 +1,8 @@
 import 'package:gamengine/src/ecs/entity.dart';
+import 'package:gamengine/src/ecs/events/event.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-class CollisionEvent {
+class CollisionEvent extends GameEvent {
   final Entity entityA;
   final Entity entityB;
   final Vector2 point;

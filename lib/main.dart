@@ -39,9 +39,10 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
   late final DebugStats _debugStats;
   late final CameraState _camera;
   late final WorldStateSerializer _worldSerializer;
-  late final WorldStatePersistence<String> _worldPersistence;
+  late final EngineSnapshotPersistence<String> _snapshotPersistence;
   late final Map<String, ui.Image> _spriteLibrary;
   late final SpriteAnimationSystem _spriteAnimationSystem;
+  late final ParticleSystem _particleSystem;
   CameraFollowSystem? _cameraFollowSystem;
   String? _savedWorld;
   late final Future<void> _setupFuture;
@@ -62,8 +63,8 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     DefaultWorldComponentCodecs.register(_worldSerializer);
     _worldSerializer.registerCodec<RocketPilot>(_RocketPilotCodec());
     _worldSerializer.registerCodec<SpriteAssetTag>(_SpriteAssetTagCodec());
-    _worldPersistence = WorldStatePersistence(
-      serializer: _worldSerializer,
+    _snapshotPersistence = EngineSnapshotPersistence(
+      serializer: EngineSnapshotSerializer(worldSerializer: _worldSerializer),
       format: JsonWorldStateFormat(),
     );
     _camera = CameraState()
@@ -172,8 +173,11 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       world: _world,
       gravitationalConstant: _gravityConstant,
     );
-    final collisionSystem = CollisionSystem(world: _world);
-    final particleSystem = ParticleSystem(world: _world, maxParticles: 6000);
+    final collisionSystem = CollisionSystem(
+      world: _world,
+      eventBus: _engine.events,
+    );
+    _particleSystem = ParticleSystem(world: _world, maxParticles: 6000);
 
     _engine.addSystem(
       RocketControlSystem(world: _world, input: _flightInput),
@@ -190,19 +194,19 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     _engine.addSystem(collisionSystem, 490);
     _engine.addSystem(
       CollisionParticleEffectsSystem(
-        collisionSystem: collisionSystem,
-        particleSystem: particleSystem,
+        eventBus: _engine.events,
+        particleSystem: _particleSystem,
       ),
       485,
     );
-    _engine.addSystem(particleSystem, 480);
+    _engine.addSystem(_particleSystem, 480);
     _engine.addSystem(
       RenderSystem(
         world: _world,
         queue: _queue,
         camera: _camera,
         metrics: _renderMetrics,
-        particleSystem: particleSystem,
+        particleSystem: _particleSystem,
       ),
       1000,
     );
@@ -434,10 +438,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
           ..lineTo(dx + frameWidth * 0.62, frameHeight - 4)
           ..lineTo(dx + frameWidth * 0.38, frameHeight - 4)
           ..close();
-        canvas.drawPath(
-          flamePath,
-          Paint()..color = const Color(0xFFFFB347),
-        );
+        canvas.drawPath(flamePath, Paint()..color = const Color(0xFFFFB347));
       }
     }
 
@@ -552,8 +553,9 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
   }
 
   void _saveWorld() {
-    final serialized = _worldPersistence.encodeWorld(
+    final serialized = _snapshotPersistence.encodeSnapshot(
       _world,
+      participants: <SnapshotParticipant>[_particleSystem],
       throwOnUnregisteredComponent: false,
     );
     setState(() {
@@ -568,9 +570,10 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
       return;
     }
 
-    _worldPersistence.decodeIntoWorld(
+    _snapshotPersistence.decodeIntoWorld(
       _world,
       serialized,
+      participants: <SnapshotParticipant>[_particleSystem],
       clearWorld: true,
       throwOnUnknownComponentType: false,
     );
@@ -820,11 +823,11 @@ class RocketControlSystem extends System {
 }
 
 class CollisionParticleEffectsSystem extends System {
-  final CollisionSystem collisionSystem;
+  final EventBus eventBus;
   final ParticleSystem particleSystem;
 
   CollisionParticleEffectsSystem({
-    required this.collisionSystem,
+    required this.eventBus,
     required this.particleSystem,
   });
 
@@ -833,7 +836,7 @@ class CollisionParticleEffectsSystem extends System {
 
   @override
   void update(double dt) {
-    for (final event in collisionSystem.events) {
+    for (final event in eventBus.read<CollisionEvent>()) {
       final isPlanetHit =
           event.entityA.get<GravitySource>() != null ||
           event.entityB.get<GravitySource>() != null;
