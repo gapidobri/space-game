@@ -37,6 +37,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
   late final RenderQueue _queue;
   late final RenderMetrics _renderMetrics;
   late final DebugStats _debugStats;
+  late final HudStateStore<FlightHudState> _hudStore;
   late final CameraState _camera;
   late final WorldStateSerializer _worldSerializer;
   late final EngineSnapshotPersistence<String> _snapshotPersistence;
@@ -59,6 +60,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     _queue = RenderQueue();
     _renderMetrics = RenderMetrics();
     _debugStats = DebugStats();
+    _hudStore = HudStateStore(const FlightHudState.empty());
     _worldSerializer = WorldStateSerializer();
     DefaultWorldComponentCodecs.register(_worldSerializer);
     _worldSerializer.registerCodec<RocketPilot>(_RocketPilotCodec());
@@ -77,6 +79,7 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
 
   @override
   void dispose() {
+    _hudStore.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -185,6 +188,15 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     );
     _spriteAnimationSystem = SpriteAnimationSystem(world: _world);
     _engine.addSystem(_spriteAnimationSystem, 950);
+    _engine.addSystem(
+      HudPresenterSystem<FlightHudState>(
+        world: _world,
+        output: _hudStore,
+        project: _buildFlightHudState,
+        priority: 910,
+      ),
+      910,
+    );
     _cameraFollowSystem = CameraFollowSystem(
       camera: _camera,
       target: _rocketEntity,
@@ -518,6 +530,11 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
 
               return Stack(
                 children: [
+                  Positioned(
+                    bottom: 14,
+                    left: 14,
+                    child: _FlightHudPanel(store: _hudStore),
+                  ),
                   Positioned.fill(
                     child: GameView(
                       engine: _engine,
@@ -630,6 +647,54 @@ class _EngineDemoPageState extends State<EngineDemoPage> {
     _camera.position.x = transform.position.x;
     _camera.position.y = transform.position.y;
   }
+
+  FlightHudState _buildFlightHudState(World world) {
+    final transform = _rocketEntity.get<Transform>();
+    final body = _rocketEntity.get<RigidBody>();
+
+    final speed = body == null ? 0.0 : body.velocity.length;
+    final altitude = transform == null
+        ? 0.0
+        : _estimateSurfaceAltitude(transform.position.x, transform.position.y);
+    final collisions = _collisionEventsLastFrame();
+
+    return FlightHudState(
+      speed: speed,
+      altitude: altitude,
+      particles: _particleSystem.aliveCount,
+      collisions: collisions,
+      entities: _world.entityCount,
+    );
+  }
+
+  double _estimateSurfaceAltitude(double x, double y) {
+    double? best;
+    for (final entity in _world.entities) {
+      final gravitySource = entity.get<GravitySource>();
+      final collider = entity.get<Collider>();
+      final transform = entity.get<Transform>();
+      if (gravitySource == null || collider == null || transform == null) {
+        continue;
+      }
+
+      final dx = x - transform.position.x;
+      final dy = y - transform.position.y;
+      final centerDistance = math.sqrt((dx * dx) + (dy * dy));
+      final surfaceAltitude = centerDistance - collider.radius;
+      if (best == null || surfaceAltitude < best) {
+        best = surfaceAltitude;
+      }
+    }
+    return best ?? 0.0;
+  }
+
+  int _collisionEventsLastFrame() {
+    var count = 0;
+    for (final _ in _engine.events.read<CollisionEvent>()) {
+      count++;
+    }
+    return count;
+  }
 }
 
 class _ControlHint extends StatelessWidget {
@@ -651,6 +716,79 @@ class _ControlHint extends StatelessWidget {
             fontSize: 11,
             fontFamily: 'monospace',
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class FlightHudState {
+  final double speed;
+  final double altitude;
+  final int particles;
+  final int collisions;
+  final int entities;
+
+  const FlightHudState({
+    required this.speed,
+    required this.altitude,
+    required this.particles,
+    required this.collisions,
+    required this.entities,
+  });
+
+  const FlightHudState.empty()
+    : speed = 0,
+      altitude = 0,
+      particles = 0,
+      collisions = 0,
+      entities = 0;
+
+  @override
+  bool operator ==(Object other) {
+    return other is FlightHudState &&
+        other.speed == speed &&
+        other.altitude == altitude &&
+        other.particles == particles &&
+        other.collisions == collisions &&
+        other.entities == entities;
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(speed, altitude, particles, collisions, entities);
+}
+
+class _FlightHudPanel extends StatelessWidget {
+  final HudStateStore<FlightHudState> store;
+
+  const _FlightHudPanel({required this.store});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x99000000),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: ValueListenableBuilder<FlightHudState>(
+          valueListenable: store,
+          builder: (context, hud, child) {
+            return Text(
+              'Speed: ${hud.speed.toStringAsFixed(1)}\n'
+              'Altitude: ${hud.altitude.toStringAsFixed(1)}\n'
+              'Particles: ${hud.particles}\n'
+              'Collisions: ${hud.collisions}\n'
+              'Entities: ${hud.entities}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontFamily: 'monospace',
+              ),
+            );
+          },
         ),
       ),
     );
