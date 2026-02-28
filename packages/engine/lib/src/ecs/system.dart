@@ -3,9 +3,5 @@ abstract class System {
 
   int priority;
 
-  void start() {}
-
   void update(double dt) {}
-
-  void end() {}
 }

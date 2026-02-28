@@ -1,4 +1,4 @@
-import 'package:gamengine/src/ecs/component.dart';
+import 'package:gamengine/src/ecs/components/component.dart';
 
 class Entity {
   final _components = <Type, Component>{};

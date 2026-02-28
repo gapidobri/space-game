@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:gamengine/src/ecs/system.dart';
+import 'package:gamengine/src/ecs/components/transform.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/physics/components/gravity_source.dart';
 import 'package:gamengine/src/physics/components/rigid_body.dart';
 import 'package:gamengine/src/physics/physics_system.dart';
-import 'package:gamengine/src/render/components/transform.dart';
 import 'package:gamengine/src/render/debug/debug_stats.dart';
 
 class PhysicsDebugSystem extends System {
@@ -51,11 +51,15 @@ class PhysicsDebugSystem extends System {
 
     final avgSpeed = totalBodies == 0 ? 0.0 : totalSpeed / totalBodies;
     stats.setLines(<String, String>{
-      'Physics Bodies': '$totalBodies (dyn $dynamicBodies / static $staticBodies)',
+      'Physics Bodies':
+          '$totalBodies (dyn $dynamicBodies / static $staticBodies)',
       'Gravity Sources': '$gravitySources',
-      'Velocity avg/max': '${avgSpeed.toStringAsFixed(2)} / ${maxSpeed.toStringAsFixed(2)}',
+      'Velocity avg/max':
+          '${avgSpeed.toStringAsFixed(2)} / ${maxSpeed.toStringAsFixed(2)}',
       if (physicsSystem != null)
-        'Gravity G': physicsSystem!.gravitationalConstant.toStringAsExponential(3),
+        'Gravity G': physicsSystem!.gravitationalConstant.toStringAsExponential(
+          3,
+        ),
     });
   }
 }

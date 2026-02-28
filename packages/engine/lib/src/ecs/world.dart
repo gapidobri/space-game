@@ -1,4 +1,4 @@
-import 'package:gamengine/src/ecs/component.dart';
+import 'package:gamengine/src/ecs/components/component.dart';
 import 'package:gamengine/src/ecs/entity.dart';
 
 class World {

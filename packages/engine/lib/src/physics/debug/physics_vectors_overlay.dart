@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Transform;
+import 'package:gamengine/src/ecs/components/transform.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/physics/components/rigid_body.dart';
 import 'package:gamengine/src/render/camera_state.dart';
-import 'package:gamengine/src/render/components/transform.dart';
 import 'package:gamengine/src/render/render_queue.dart';
 import 'package:vector_math/vector_math_64.dart';
 

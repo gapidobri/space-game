@@ -19,11 +19,9 @@ class Engine {
   void addSystem(System system, int priority) {
     _systems.add(system);
     _systems.sort((a, b) => b.priority.compareTo(a.priority));
-    system.start();
   }
 
   void removeSystem(System system) {
-    system.end();
     _systems.remove(system);
   }
 

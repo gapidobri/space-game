@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:gamengine/src/ecs/engine.dart';
 import 'package:gamengine/src/ecs/world.dart';
+import 'package:gamengine/src/physics/debug/physics_vectors_overlay.dart';
 import 'package:gamengine/src/render/camera_state.dart';
 import 'package:gamengine/src/render/debug/debug_overlay.dart';
 import 'package:gamengine/src/render/debug/debug_stats.dart';
-import 'package:gamengine/src/render/debug/physics_vectors_overlay.dart';
 import 'package:gamengine/src/render/painter.dart';
 import 'package:gamengine/src/render/render_queue.dart';
 

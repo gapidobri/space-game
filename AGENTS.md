@@ -14,7 +14,6 @@
 
 ## Code Size and Style
 - Follow good engineering practices and maintain a clear, consistent folder structure.
-- Avoid single-file folders. If a folder would contain only one file, place that file in the parent folder.
 - Write the least code that correctly solves the problem.
 - Prioritize readability and maintainability over cleverness.
 - Reuse existing utilities/systems before adding new abstractions.

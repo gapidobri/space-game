@@ -2,10 +2,10 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:gamengine/src/ecs/system.dart';
+import 'package:gamengine/src/ecs/components/transform.dart';
 import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/render/commands/render_commands.dart';
 import 'package:gamengine/src/render/components/particle_emitter.dart';
-import 'package:gamengine/src/render/components/transform.dart';
 import 'package:gamengine/src/render/render_queue.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -64,7 +64,9 @@ class ParticleSystem extends System {
         DrawCircleCommand(
           center: Offset(p.position.x, p.position.y),
           radius: radius,
-          color: Color.lerp(p.colorStart, p.colorEnd, p.normalizedAge) ?? p.colorEnd,
+          color:
+              Color.lerp(p.colorStart, p.colorEnd, p.normalizedAge) ??
+              p.colorEnd,
           z: p.z,
         ),
       );
@@ -186,7 +188,9 @@ class ParticleSystem extends System {
         ..y = (dx * sinR) + (dy * cosR);
     }
 
-    final angle = math.atan2(_tmp.y, _tmp.x) + _randRange(-emitter.spread, emitter.spread);
+    final angle =
+        math.atan2(_tmp.y, _tmp.x) +
+        _randRange(-emitter.spread, emitter.spread);
     final speed = _randRange(emitter.speedMin, emitter.speedMax);
 
     _particles.add(

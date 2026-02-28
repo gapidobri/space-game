@@ -1,4 +1,4 @@
-import 'package:gamengine/src/ecs/component.dart';
+import 'package:gamengine/src/ecs/components/component.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class Transform extends Component {

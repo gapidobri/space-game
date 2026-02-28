@@ -6,7 +6,7 @@ import 'package:gamengine/src/ecs/world.dart';
 import 'package:gamengine/src/physics/collision_event.dart';
 import 'package:gamengine/src/physics/components/collider.dart';
 import 'package:gamengine/src/physics/components/rigid_body.dart';
-import 'package:gamengine/src/render/components/transform.dart';
+import 'package:gamengine/src/ecs/components/transform.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class CollisionSystem extends System {
@@ -139,7 +139,10 @@ class CollisionSystem extends System {
       return;
     }
 
-    final correctedPenetration = math.max(0.0, penetration - positionCorrectionSlop);
+    final correctedPenetration = math.max(
+      0.0,
+      penetration - positionCorrectionSlop,
+    );
     if (correctedPenetration <= 0) {
       return;
     }
@@ -246,10 +249,7 @@ class CollisionSystem extends System {
     }
   }
 
-  double _closingSpeed({
-    required RigidBody? bodyA,
-    required RigidBody? bodyB,
-  }) {
+  double _closingSpeed({required RigidBody? bodyA, required RigidBody? bodyB}) {
     _relativeVelocity
       ..setZero()
       ..add(bodyB?.velocity ?? Vector2.zero())
