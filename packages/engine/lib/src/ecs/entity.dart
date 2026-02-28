@@ -1,4 +1,4 @@
-import 'package:gamengine/src/component.dart';
+import 'package:gamengine/src/ecs/component.dart';
 
 class Entity {
   final _components = <Type, Component>{};
@@ -11,7 +11,7 @@ class Entity {
     _components.remove(componentType);
   }
 
-  Component? get<T extends Component>() {
-    return _components[T];
+  T? get<T extends Component>() {
+    return _components[T] as T?;
   }
 }

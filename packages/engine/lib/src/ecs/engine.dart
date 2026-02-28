@@ -1,18 +1,19 @@
-import 'package:gamengine/src/entity.dart';
-import 'package:gamengine/src/node.dart';
-import 'package:gamengine/src/system.dart';
+import 'package:gamengine/src/ecs/entity.dart';
+import 'package:gamengine/src/ecs/system.dart';
+import 'package:gamengine/src/ecs/world.dart';
 
 class Engine {
-  final _entities = <Entity>[];
+  final World world;
   final _systems = <System>[];
-  final _nodeLists = <Type, List<Node>>{};
+
+  Engine({World? world}) : world = world ?? World();
 
   void addEntity(Entity entity) {
-    _entities.add(entity);
+    world.addEntity(entity);
   }
 
   void removeEntity(Entity entity) {
-    _entities.remove(entity);
+    world.removeEntity(entity);
   }
 
   void addSystem(System system, int priority) {
@@ -24,15 +25,6 @@ class Engine {
   void removeSystem(System system) {
     system.end();
     _systems.remove(system);
-  }
-
-  List<T> getNodeList<T extends Node>() {
-    final nodes = <T>[];
-    _nodeLists[T] = nodes;
-
-    // TODO: populate
-
-    return nodes;
   }
 
   void update(double dt) {
