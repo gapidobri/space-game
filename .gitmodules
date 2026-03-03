@@ -1,0 +1,3 @@
+[submodule "packages/gamengine"]
+	path = packages/gamengine
+	url = git@github.com:gapidobri/gamengine.git
