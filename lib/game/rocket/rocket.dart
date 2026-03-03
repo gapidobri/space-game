@@ -9,13 +9,13 @@ class Rocket {
 
     entity.add(Transform());
     entity.add(RigidBody(mass: 100));
-    entity.add(Collider(radius: 10));
+    entity.add(Collider(radius: 20));
 
     final atlas = await assetManager.loadImage('assets/atlas.png');
     entity.add(Sprite(image: atlas, sourceRect: Rect.fromLTWH(0, 50, 50, 50)));
 
     entity.add(
-      RocketPilot(thrustForce: 1000, turnSpeed: 5, boostMultiplier: 2),
+      RocketPilot(thrustForce: 10000, turnSpeed: 5, boostMultiplier: 2),
     );
 
     return entity;

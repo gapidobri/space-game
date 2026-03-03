@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/alien/alien.dart';
+import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/input.dart';
 import 'package:space_game/game/planet/planet.dart';
 import 'package:space_game/game/rocket/rocket.dart';
@@ -45,11 +47,18 @@ class _SpaceGameState extends State<SpaceGame> {
     final rocket = await Rocket.create(assetManager: _assetManager);
     _engine.addEntity(rocket);
 
+    _engine.addSystem(
+      RocketControlSystem(world: _world, inputState: _inputState),
+    );
+
     final planet = await Planet.create(
       assetManager: _assetManager,
       position: Vector2(400, 0),
     );
     _engine.addEntity(planet);
+
+    _engine.addEntity(await Alien.create(assetManager: _assetManager));
+    _engine.addSystem(AlienMovementSystem(target: rocket, world: _world));
 
     _engine.addSystem(
       InputSystem(
@@ -61,10 +70,6 @@ class _SpaceGameState extends State<SpaceGame> {
           ..registerAction(action: .thrust, keys: [.space])
           ..registerAction(action: .boost, keys: [.shift]),
       ),
-    );
-
-    _engine.addSystem(
-      RocketControlSystem(world: _world, inputState: _inputState),
     );
 
     _engine.addSystem(

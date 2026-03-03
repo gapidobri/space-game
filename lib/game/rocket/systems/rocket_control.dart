@@ -16,15 +16,17 @@ class RocketControlSystem extends System {
 
   @override
   void update(double dt) {
-    final turnLeft = inputState.isPressed(InputAction.rotateLeft);
-    final turnRight = inputState.isPressed(InputAction.rotateRight);
-    final thrustInput = inputState.isPressed(InputAction.thrust);
-    final boostInput = inputState.isPressed(InputAction.boost);
+    final turnLeft = inputState.isPressed(.rotateLeft);
+    final turnRight = inputState.isPressed(.rotateRight);
+    final thrustInput = inputState.isPressed(.thrust);
+    final boostInput = inputState.isPressed(.boost);
 
-    for (final rocket in world.query2<Transform, RocketPilot>()) {
+    for (final rocket in world.query<RocketPilot>()) {
       final transform = rocket.get<Transform>();
       final rigidBody = rocket.get<RigidBody>();
       final pilot = rocket.get<RocketPilot>();
+
+      // TODO: angular accelleration
 
       double rotation = 0;
       if (turnLeft) {
