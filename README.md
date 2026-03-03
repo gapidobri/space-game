@@ -1,16 +1,28 @@
-# space_game
+# Space Game
 
-A new Flutter project.
+A space game written in Flutter with custom engine.
 
-## Getting Started
+The engine is located in a seperate [repo](https://github.com/gapidobri/gamengine) and included as a submodule in `./packages/gamengine`.
 
-This project is a starting point for a Flutter application.
+## Cloning
+```bash
+git clone --recurse-submodules https://github.com/gapidobri/space-game.git
+```
 
-A few resources to get you started if this is your first Flutter project:
+## Development
+Install dependencies
+```bash
+flutter pub get
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Run the game
+```bash
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Building
+The game builds normally with flutter build command:
+```bash
+flutter build <platform>
+```
+
