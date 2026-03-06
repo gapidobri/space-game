@@ -1,11 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/alien/alien.dart';
 import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/input.dart';
+import 'package:space_game/game/level/level_config.dart';
+import 'package:space_game/game/planet/atmosphere/atmosphere_system.dart';
 import 'package:space_game/game/planet/planet.dart';
 import 'package:space_game/game/rocket/rocket.dart';
-import 'package:space_game/game/rocket/systems/rocket_control.dart';
+import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
 
 class SpaceGame extends StatefulWidget {
   const SpaceGame({super.key});
@@ -15,8 +18,6 @@ class SpaceGame extends StatefulWidget {
 }
 
 class _SpaceGameState extends State<SpaceGame> {
-  static const double _gravityConstant = 1.0;
-
   late final Engine _engine;
   late final World _world;
   late final EventBus _eventBus;
@@ -51,13 +52,11 @@ class _SpaceGameState extends State<SpaceGame> {
       RocketControlSystem(world: _world, inputState: _inputState),
     );
 
-    final planet = await Planet.create(
-      assetManager: _assetManager,
-      position: Vector2(400, 0),
-    );
-    _engine.addEntity(planet);
+    final levelConfig = LevelConfig(planetCount: 7);
 
-    _engine.addEntity(await Alien.create(assetManager: _assetManager));
+    await _generateLevel(levelConfig);
+
+    // _engine.addEntity(await Alien.create(assetManager: _assetManager));
     _engine.addSystem(AlienMovementSystem(target: rocket, world: _world));
 
     _engine.addSystem(
@@ -72,9 +71,9 @@ class _SpaceGameState extends State<SpaceGame> {
       ),
     );
 
-    _engine.addSystem(
-      PhysicsSystem(world: _world, gravitationalConstant: _gravityConstant),
-    );
+    _engine.addSystem(AtmosphereSystem(world: _world));
+
+    _engine.addSystem(PhysicsSystem(world: _world));
 
     _engine.addSystem(CollisionSystem(world: _world, eventBus: _eventBus));
 
@@ -83,6 +82,35 @@ class _SpaceGameState extends State<SpaceGame> {
     _engine.addSystem(
       RenderSystem(world: _world, queue: _renderQueue, camera: _camera),
     );
+  }
+
+  Future<void> _generateLevel(LevelConfig config) async {
+    await _generatePlanets(config);
+  }
+
+  Future<void> _generatePlanets(LevelConfig config) async {
+    final random = Random();
+
+    for (int i = 0; i < config.planetCount; i++) {
+      final image = await _assetManager.loadImage(
+        'assets/planets/planet_0${i + 1}.png',
+      );
+
+      _engine.addEntity(
+        PlanetBuilder(
+          image: image,
+          position: Vector2(
+            random.nextDouble() * 5000 - 2500,
+            random.nextDouble() * 5000 - 2500,
+          ),
+          mass: 6e16,
+          atmosphere: AtmosphereBuilder(
+            drag: 10,
+            color: Color.fromARGB(50, 255, 100, 100),
+          ),
+        ).build(),
+      );
+    }
   }
 
   @override

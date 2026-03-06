@@ -26,16 +26,14 @@ class RocketControlSystem extends System {
       final rigidBody = rocket.get<RigidBody>();
       final pilot = rocket.get<RocketPilot>();
 
-      // TODO: angular accelleration
-
-      double rotation = 0;
+      double rotationForce = 0;
       if (turnLeft) {
-        rotation -= 1.0;
+        rotationForce -= pilot.rotationForce;
       }
       if (turnRight) {
-        rotation += 1.0;
+        rotationForce += pilot.rotationForce;
       }
-      rigidBody.angularVelocity = rotation * pilot.turnSpeed;
+      rigidBody.angularAcceleration = rotationForce;
 
       final boost = boostInput ? pilot.boostMultiplier : 1;
       final thrust = thrustInput ? pilot.thrustForce * boost : 0;
