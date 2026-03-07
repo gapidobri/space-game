@@ -7,6 +7,8 @@ import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/astronaut/astronaut.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
+import 'package:space_game/game/background/background.dart';
+import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/hud/hud_data.dart';
 import 'package:space_game/game/input.dart';
 import 'package:space_game/game/interaction/interaction_indicator_system.dart';
@@ -85,6 +87,8 @@ class _SpaceGameState extends State<SpaceGame> {
     _engine.addSystem(InteractionIndicatorSystem());
     _engine.addSystem(AstronautRescueSystem(eventBus: _eventBus));
 
+    _engine.addSystem(ParallaxSystem(camera: _camera));
+
     _engine.addSystem(AtmosphereSystem());
     _engine.addSystem(LandingAssistanceSystem(eventBus: _eventBus));
     _engine.addSystem(PhysicsSystem());
@@ -112,6 +116,23 @@ class _SpaceGameState extends State<SpaceGame> {
 
   Future<void> _generateLevel(LevelConfig config) async {
     // await _generatePlanets(config);
+
+    _engine.addEntity(
+      BackgroundBuilder(
+        image: await _assetManager.loadImage(
+          'assets/background/background_dust.png',
+        ),
+        parallax: 0.5,
+      ).build(),
+    );
+    _engine.addEntity(
+      BackgroundBuilder(
+        image: await _assetManager.loadImage(
+          'assets/background/background_stars.png',
+        ),
+        parallax: 0.4,
+      ).build(),
+    );
 
     final image = await _assetManager.loadImage('assets/planets/planet_01.png');
 
