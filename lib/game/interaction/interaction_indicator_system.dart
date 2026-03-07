@@ -22,7 +22,7 @@ class InteractionIndicatorSystem extends System {
         identicator.add(Transform());
         identicator.add(
           CircleShape(
-            radius: 50,
+            radius: 100, // TODO: get from Eva
             paint: Paint()
               ..color = Color.fromARGB(100, 100, 255, 100)
               ..style = PaintingStyle.stroke

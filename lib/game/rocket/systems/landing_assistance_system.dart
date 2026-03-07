@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/planet/planet.dart';
-import 'package:space_game/game/rocket/components/landing_state.dart';
+import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/rocket.dart';
 import 'package:collection/collection.dart';
 
@@ -22,17 +22,18 @@ class LandingAssistanceSystem extends System {
     final rocket = world.query<RocketTag>().firstOrNull;
     if (rocket == null) return;
 
-    final landingState = rocket.get<LandingState>();
+    final locationStore = rocket.get<RocketLocationStore>();
     final transform = rocket.get<Transform>();
     final rigidBody = rocket.get<RigidBody>();
 
-    if (landingState.hasLanded) {
+    final location = locationStore.location;
+    if (location is RocketLocationLanded) {
       rigidBody.velocity.setZero();
       rigidBody.angularVelocity = 0;
 
       final planetRocketAngle = _calculatePlanetRocketAngle(
         transform,
-        landingState.planet!.get<Transform>(),
+        location.planet.get<Transform>(),
       );
 
       // rotate rocket perfectly upright after landing
@@ -69,8 +70,7 @@ class LandingAssistanceSystem extends System {
       if (planetRocketAngle.abs() < 0.5 &&
           rigidBody.angularVelocity < 1 &&
           isColliding) {
-        landingState.hasLanded = true;
-        landingState.planet = planet;
+        locationStore.location = RocketLocationLanded(planet: planet);
       }
     }
   }

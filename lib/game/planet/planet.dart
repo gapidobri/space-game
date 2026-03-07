@@ -6,7 +6,6 @@ import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
 class PlanetTag extends Component {}
 
 class PlanetBuilder {
-
   const PlanetBuilder({
     required this.image,
     required this.position,
@@ -70,7 +69,6 @@ class PlanetBuilder {
 }
 
 class AtmosphereBuilder {
-
   const AtmosphereBuilder({required this.drag, required this.color});
   final double drag;
   final Color color;

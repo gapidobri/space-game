@@ -1,20 +1,20 @@
 import 'package:gamengine/gamengine.dart';
 
-class AstronautLocation extends Component {
-  AstronautLocation({required this.type});
+class AstronautLocationStore extends Component {
+  AstronautLocationStore({required this.location});
 
-  AstronautLocationType type;
+  AstronautLocation location;
 }
 
-sealed class AstronautLocationType {
-  const AstronautLocationType();
+sealed class AstronautLocation {
+  const AstronautLocation();
 }
 
-class AstronautLocationOnPlanet implements AstronautLocationType {
+class AstronautLocationOnPlanet implements AstronautLocation {
   const AstronautLocationOnPlanet({required this.planet, required this.angle});
 
   final Entity planet;
   final double angle;
 }
 
-class AstronautLocationInRocket implements AstronautLocationType {}
+class AstronautLocationInRocket implements AstronautLocation {}

@@ -16,7 +16,7 @@ import 'package:space_game/game/planet/planet.dart';
 import 'package:space_game/game/rocket/astronaut_rescue/astronaut_rescue_system.dart';
 import 'package:space_game/game/rocket/astronaut_rescue/rescue_attempt_event.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
-import 'package:space_game/game/rocket/components/rocket_pilot.dart';
+import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/rocket.dart';
 import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
@@ -96,10 +96,15 @@ class _SpaceGameState extends State<SpaceGame> {
       HudPresenterSystem(
         output: _hudStateStore,
         project: (world) {
-          final rocket = world.query2<RocketPilot, FuelTank>().first;
+          final rocket = world.query<RocketTag>().first;
           final fuelTank = rocket.get<FuelTank>();
+          final rocketLocationStore = rocket.get<RocketLocationStore>();
 
-          return HudData(maxFuel: fuelTank.maxFuel, fuel: fuelTank.fuel);
+          return HudData(
+            maxFuel: fuelTank.maxFuel,
+            fuel: fuelTank.fuel,
+            rocketLocation: rocketLocationStore.location,
+          );
         },
       ),
     );
@@ -123,7 +128,10 @@ class _SpaceGameState extends State<SpaceGame> {
 
     final astronaut = AstronautBuilder(
       image: await _assetManager.loadImage('assets/atlas.png'),
-      location: AstronautLocationOnPlanet(planet: planet, angle: -math.pi / 2),
+      location: AstronautLocationOnPlanet(
+        planet: planet,
+        angle: Random().nextDouble() * 2 * math.pi,
+      ),
     ).build();
     _engine.addEntity(astronaut);
   }
@@ -174,7 +182,7 @@ class _SpaceGameState extends State<SpaceGame> {
                 child: ValueListenableBuilder(
                   valueListenable: _hudStateStore,
                   builder: (context, state, _) => Text(
-                    'Fuel: ${state.fuel.toInt()}/${state.maxFuel.toInt()}',
+                    'Fuel: ${state.fuel.toInt()}/${state.maxFuel.toInt()}\nRocket Location: ${state.rocketLocation.runtimeType}',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

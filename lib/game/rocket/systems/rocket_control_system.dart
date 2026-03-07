@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/input.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
-import 'package:space_game/game/rocket/components/landing_state.dart';
+import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/components/rocket_pilot.dart';
 
 class RocketControlSystem extends System {
@@ -22,14 +22,14 @@ class RocketControlSystem extends System {
       final rigidBody = rocket.get<RigidBody>();
       final pilot = rocket.get<RocketPilot>();
       final fuelTank = rocket.get<FuelTank>();
-      final landingState = rocket.get<LandingState>();
+      final rocketLocation = rocket.get<RocketLocationStore>();
 
       if (fuelTank.fuel <= 0) {
         continue;
       }
 
       if (thrustInput) {
-        landingState.hasLanded = false;
+        rocketLocation.location = RocketLocationInSpace();
       }
 
       double rotationForce = 0;

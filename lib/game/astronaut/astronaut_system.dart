@@ -12,10 +12,10 @@ class AstronautSystem extends System {
   void update(double dt, World world, Commands commands) {
     for (final astronaut in world.query<AstronautTag>()) {
       final transform = astronaut.get<Transform>();
-      final location = astronaut.get<AstronautLocation>();
+      final location = astronaut.get<AstronautLocationStore>();
       final sprite = astronaut.get<Sprite>();
 
-      final locationType = location.type;
+      final locationType = location.location;
 
       if (locationType is AstronautLocationInRocket) {
         sprite.visible = false;
@@ -39,8 +39,9 @@ class AstronautSystem extends System {
       );
 
       transform.position.setFrom(
-        planetTransform.position + angle * collider.radius,
+        planetTransform.position + angle * (collider.radius + 20),
       );
+      transform.rotation = locationType.angle + math.pi / 2;
     }
   }
 }
