@@ -22,7 +22,7 @@ class InteractionIndicatorSystem extends System {
         identicator.add(Transform());
         identicator.add(
           CircleShape(
-            radius: 30,
+            radius: 50,
             paint: Paint()
               ..color = Color.fromARGB(100, 100, 255, 100)
               ..style = PaintingStyle.stroke
@@ -34,7 +34,7 @@ class InteractionIndicatorSystem extends System {
         idRef = _InteractionIndicatorRef(identicator);
         entity.add(idRef);
 
-        // world.addEntity(identicator);
+        commands.spawn(identicator);
       }
 
       final identicator = idRef.identicator;
@@ -43,6 +43,14 @@ class InteractionIndicatorSystem extends System {
       final idTransform = identicator.get<Transform>();
 
       idTransform.position.setFrom(transform.position);
+    }
+
+    for (final entity in world.query<_InteractionIndicatorRef>()) {
+      if (entity.has<Interactable>()) continue;
+
+      final ref = entity.get<_InteractionIndicatorRef>();
+      commands.removeComponent<_InteractionIndicatorRef>(entity);
+      commands.despawn(ref.identicator);
     }
   }
 }

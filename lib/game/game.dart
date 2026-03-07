@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
@@ -12,6 +13,8 @@ import 'package:space_game/game/interaction/interaction_indicator_system.dart';
 import 'package:space_game/game/level/level_config.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere_system.dart';
 import 'package:space_game/game/planet/planet.dart';
+import 'package:space_game/game/rocket/astronaut_rescue/astronaut_rescue_system.dart';
+import 'package:space_game/game/rocket/astronaut_rescue/rescue_attempt_event.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_pilot.dart';
 import 'package:space_game/game/rocket/rocket.dart';
@@ -27,7 +30,7 @@ class SpaceGame extends StatefulWidget {
 
 class _SpaceGameState extends State<SpaceGame> {
   late final Engine _engine;
-  late final World _world;
+
   late final EventBus _eventBus;
   late final InputActionState<InputAction> _inputState;
   late final CameraState _camera;
@@ -43,7 +46,6 @@ class _SpaceGameState extends State<SpaceGame> {
 
     _assetManager = AssetManager();
 
-    _world = World();
     _eventBus = EventBus();
     _inputState = InputActionState<InputAction>();
     _camera = CameraState();
@@ -81,6 +83,7 @@ class _SpaceGameState extends State<SpaceGame> {
 
     _engine.addSystem(AstronautSystem());
     _engine.addSystem(InteractionIndicatorSystem());
+    _engine.addSystem(AstronautRescueSystem(eventBus: _eventBus));
 
     _engine.addSystem(AtmosphereSystem());
     _engine.addSystem(LandingAssistanceSystem(eventBus: _eventBus));
@@ -109,7 +112,7 @@ class _SpaceGameState extends State<SpaceGame> {
 
     final planet = PlanetBuilder(
       image: image,
-      position: Vector2(500, 0),
+      position: Vector2(0, 500),
       mass: 6e16,
       atmosphere: AtmosphereBuilder(
         drag: 10,
@@ -120,10 +123,7 @@ class _SpaceGameState extends State<SpaceGame> {
 
     final astronaut = AstronautBuilder(
       image: await _assetManager.loadImage('assets/atlas.png'),
-      location: AstronautLocationOnPlanet(
-        planet: planet,
-        angle: Random().nextDouble() * 2 * pi,
-      ),
+      location: AstronautLocationOnPlanet(planet: planet, angle: -math.pi / 2),
     ).build();
     _engine.addEntity(astronaut);
   }
@@ -177,6 +177,16 @@ class _SpaceGameState extends State<SpaceGame> {
                     'Fuel: ${state.fuel.toInt()}/${state.maxFuel.toInt()}',
                     style: TextStyle(color: Colors.white),
                   ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () => _eventBus.emit(RescueAttemptEvent()),
+                  child: Text('Rescue'),
                 ),
               ),
             ),

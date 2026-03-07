@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/landing_state.dart';
 import 'package:space_game/game/rocket/components/rocket_pilot.dart';
@@ -30,6 +31,7 @@ class RocketBuilder {
     entity.add(FuelTank(maxFuel: 100, fuel: 100));
 
     entity.add(LandingState());
+    entity.add(Eva(maxRescueRange: 50));
 
     return entity;
   }

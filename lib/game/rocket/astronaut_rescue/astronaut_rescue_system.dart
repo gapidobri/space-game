@@ -1,7 +1,10 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/astronaut/astronaut.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
+import 'package:space_game/game/interaction/interactable.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/astronaut_rescue/rescue_attempt_event.dart';
+import 'package:space_game/game/rocket/components/landing_state.dart';
 import 'package:space_game/game/rocket/rocket.dart';
 
 class AstronautRescueSystem extends System {
@@ -14,11 +17,15 @@ class AstronautRescueSystem extends System {
     final rocket = world.query<RocketTag>().firstOrNull;
     if (rocket == null) return;
 
-    for (final rescueAttempt in eventBus.read<RescueAttemptEvent>()) {
-      final astronaut = rescueAttempt.astronaut;
+    final landingState = rocket.get<LandingState>();
+    if (!landingState.hasLanded) return;
 
+    for (final astronaut in world.query<AstronautTag>()) {
       final location = astronaut.get<AstronautLocation>();
-      if (location.type is! AstronautLocationOnPlanet) {
+      final locationType = location.type;
+
+      if (locationType is! AstronautLocationOnPlanet ||
+          locationType.planet != landingState.planet) {
         continue;
       }
 
@@ -33,7 +40,9 @@ class AstronautRescueSystem extends System {
         continue;
       }
 
-      location.type = AstronautLocationInRocket();
+      if (eventBus.read<RescueAttemptEvent>().isNotEmpty) {
+        location.type = AstronautLocationInRocket();
+      }
     }
   }
 }

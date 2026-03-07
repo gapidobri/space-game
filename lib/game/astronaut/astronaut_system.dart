@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/astronaut/astronaut.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
+import 'package:space_game/game/interaction/interactable.dart';
 
 class AstronautSystem extends System {
   AstronautSystem({super.priority});
@@ -18,6 +19,9 @@ class AstronautSystem extends System {
 
       if (locationType is AstronautLocationInRocket) {
         sprite.visible = false;
+        if (astronaut.has<Interactable>()) {
+          commands.removeComponent<Interactable>(astronaut);
+        }
         return;
       }
 
