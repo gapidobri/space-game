@@ -3,11 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/systems/alien_movement_system.dart';
+import 'package:space_game/game/astronaut/astronaut.dart';
+import 'package:space_game/game/astronaut/astronaut_location.dart';
+import 'package:space_game/game/astronaut/astronaut_system.dart';
+import 'package:space_game/game/hud/hud_data.dart';
 import 'package:space_game/game/input.dart';
+import 'package:space_game/game/interaction/interaction_indicator_system.dart';
 import 'package:space_game/game/level/level_config.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere_system.dart';
 import 'package:space_game/game/planet/planet.dart';
+import 'package:space_game/game/rocket/components/fuel_tank.dart';
+import 'package:space_game/game/rocket/components/rocket_pilot.dart';
 import 'package:space_game/game/rocket/rocket.dart';
+import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
 
 class SpaceGame extends StatefulWidget {
@@ -25,6 +33,7 @@ class _SpaceGameState extends State<SpaceGame> {
   late final CameraState _camera;
   late final RenderQueue _renderQueue;
   late final AssetManager _assetManager;
+  late final HudStateStore<HudData> _hudStateStore;
 
   late final Future<void> _setupFuture;
 
@@ -39,25 +48,24 @@ class _SpaceGameState extends State<SpaceGame> {
     _inputState = InputActionState<InputAction>();
     _camera = CameraState();
     _renderQueue = RenderQueue();
-    _engine = Engine(world: _world, events: _eventBus);
+    _engine = Engine(events: _eventBus);
+    _hudStateStore = HudStateStore(HudData());
 
     _setupFuture = _setupGame();
   }
 
   Future<void> _setupGame() async {
-    final rocket = await Rocket.create(assetManager: _assetManager);
+    final rocket = await RocketBuilder.create(assetManager: _assetManager);
     _engine.addEntity(rocket);
 
-    _engine.addSystem(
-      RocketControlSystem(world: _world, inputState: _inputState),
-    );
+    _engine.addSystem(RocketControlSystem(inputState: _inputState));
 
     final levelConfig = LevelConfig(planetCount: 7);
 
     await _generateLevel(levelConfig);
 
     // _engine.addEntity(await Alien.create(assetManager: _assetManager));
-    _engine.addSystem(AlienMovementSystem(target: rocket, world: _world));
+    _engine.addSystem(AlienMovementSystem(target: rocket));
 
     _engine.addSystem(
       InputSystem(
@@ -71,21 +79,53 @@ class _SpaceGameState extends State<SpaceGame> {
       ),
     );
 
-    _engine.addSystem(AtmosphereSystem(world: _world));
+    _engine.addSystem(AstronautSystem());
+    _engine.addSystem(InteractionIndicatorSystem());
 
-    _engine.addSystem(PhysicsSystem(world: _world));
-
-    _engine.addSystem(CollisionSystem(world: _world, eventBus: _eventBus));
+    _engine.addSystem(AtmosphereSystem());
+    _engine.addSystem(LandingAssistanceSystem(eventBus: _eventBus));
+    _engine.addSystem(PhysicsSystem());
+    _engine.addSystem(CollisionSystem(eventBus: _eventBus));
 
     _engine.addSystem(CameraFollowSystem(camera: _camera, target: rocket));
-
+    _engine.addSystem(RenderSystem(queue: _renderQueue, camera: _camera));
     _engine.addSystem(
-      RenderSystem(world: _world, queue: _renderQueue, camera: _camera),
+      HudPresenterSystem(
+        output: _hudStateStore,
+        project: (world) {
+          final rocket = world.query2<RocketPilot, FuelTank>().first;
+          final fuelTank = rocket.get<FuelTank>();
+
+          return HudData(maxFuel: fuelTank.maxFuel, fuel: fuelTank.fuel);
+        },
+      ),
     );
   }
 
   Future<void> _generateLevel(LevelConfig config) async {
-    await _generatePlanets(config);
+    // await _generatePlanets(config);
+
+    final image = await _assetManager.loadImage('assets/planets/planet_01.png');
+
+    final planet = PlanetBuilder(
+      image: image,
+      position: Vector2(500, 0),
+      mass: 6e16,
+      atmosphere: AtmosphereBuilder(
+        drag: 10,
+        color: Color.fromARGB(50, 255, 100, 100),
+      ),
+    ).build();
+    _engine.addEntity(planet);
+
+    final astronaut = AstronautBuilder(
+      image: await _assetManager.loadImage('assets/atlas.png'),
+      location: AstronautLocationOnPlanet(
+        planet: planet,
+        angle: Random().nextDouble() * 2 * pi,
+      ),
+    ).build();
+    _engine.addEntity(astronaut);
   }
 
   Future<void> _generatePlanets(LevelConfig config) async {
@@ -123,7 +163,25 @@ class _SpaceGameState extends State<SpaceGame> {
           return Center(child: CircularProgressIndicator());
         }
 
-        return GameView(engine: _engine, queue: _renderQueue, camera: _camera);
+        return Stack(
+          children: [
+            GameView(engine: _engine, queue: _renderQueue, camera: _camera),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: Material(
+                color: Colors.black,
+                child: ValueListenableBuilder(
+                  valueListenable: _hudStateStore,
+                  builder: (context, state, _) => Text(
+                    'Fuel: ${state.fuel.toInt()}/${state.maxFuel.toInt()}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
       },
     );
   }

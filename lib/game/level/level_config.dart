@@ -1,5 +1,5 @@
 class LevelConfig {
-  final int planetCount;
 
   const LevelConfig({required this.planetCount});
+  final int planetCount;
 }

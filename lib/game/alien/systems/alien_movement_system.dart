@@ -2,17 +2,11 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/alien.dart';
 
 class AlienMovementSystem extends System {
+  AlienMovementSystem({super.priority, required this.target});
   final Entity target;
-  final World world;
-
-  AlienMovementSystem({
-    super.priority,
-    required this.target,
-    required this.world,
-  });
 
   @override
-  void update(double dt) {
+  void update(double dt, World world, Commands commands) {
     final targetTransform = target.get<Transform>();
 
     for (final alien in world.query<AlienTag>()) {

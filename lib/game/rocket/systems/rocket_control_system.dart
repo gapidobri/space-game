@@ -2,20 +2,16 @@ import 'dart:math' as math;
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/input.dart';
+import 'package:space_game/game/rocket/components/fuel_tank.dart';
+import 'package:space_game/game/rocket/components/landing_state.dart';
 import 'package:space_game/game/rocket/components/rocket_pilot.dart';
 
 class RocketControlSystem extends System {
-  final World world;
+  RocketControlSystem({super.priority, required this.inputState});
   final InputActionState<InputAction> inputState;
 
-  RocketControlSystem({
-    super.priority,
-    required this.world,
-    required this.inputState,
-  });
-
   @override
-  void update(double dt) {
+  void update(double dt, World world, Commands commands) {
     final turnLeft = inputState.isPressed(.rotateLeft);
     final turnRight = inputState.isPressed(.rotateRight);
     final thrustInput = inputState.isPressed(.thrust);
@@ -25,6 +21,16 @@ class RocketControlSystem extends System {
       final transform = rocket.get<Transform>();
       final rigidBody = rocket.get<RigidBody>();
       final pilot = rocket.get<RocketPilot>();
+      final fuelTank = rocket.get<FuelTank>();
+      final landingState = rocket.get<LandingState>();
+
+      if (fuelTank.fuel <= 0) {
+        continue;
+      }
+
+      if (thrustInput) {
+        landingState.hasLanded = false;
+      }
 
       double rotationForce = 0;
       if (turnLeft) {
@@ -33,7 +39,7 @@ class RocketControlSystem extends System {
       if (turnRight) {
         rotationForce += pilot.rotationForce;
       }
-      rigidBody.angularAcceleration = rotationForce;
+      rigidBody.accumulatedTorque += rotationForce;
 
       final boost = boostInput ? pilot.boostMultiplier : 1;
       final thrust = thrustInput ? pilot.thrustForce * boost : 0;
@@ -43,6 +49,8 @@ class RocketControlSystem extends System {
 
       rigidBody.accumulatedForce.x += sinR * thrust;
       rigidBody.accumulatedForce.y += -cosR * thrust;
+
+      fuelTank.fuel -= 0.01 * thrust * dt;
     }
   }
 }

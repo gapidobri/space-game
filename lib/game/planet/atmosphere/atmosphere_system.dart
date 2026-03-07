@@ -2,15 +2,13 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
 
 class AtmosphereSystem extends System {
-  AtmosphereSystem({required this.world});
-
-  final World world;
+  AtmosphereSystem();
 
   @override
   int get priority => 480;
 
   @override
-  void update(double dt) {
+  void update(double dt, World world, Commands commands) {
     for (final planet in world.query2<Transform, Atmosphere>()) {
       final pTransform = planet.get<Transform>();
       final atmosphere = planet.get<Atmosphere>();

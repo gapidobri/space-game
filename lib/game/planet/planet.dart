@@ -3,11 +3,9 @@ import 'dart:ui';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
 
+class PlanetTag extends Component {}
+
 class PlanetBuilder {
-  final Vector2 position;
-  final double mass;
-  final Image image;
-  final AtmosphereBuilder? atmosphere;
 
   const PlanetBuilder({
     required this.image,
@@ -15,9 +13,26 @@ class PlanetBuilder {
     required this.mass,
     this.atmosphere,
   });
+  final Vector2 position;
+  final double mass;
+  final Image image;
+  final AtmosphereBuilder? atmosphere;
+
+  PlanetBuilder copyWith({
+    Image? image,
+    Vector2? position,
+    double? mass,
+    AtmosphereBuilder? atmosphere,
+  }) => PlanetBuilder(
+    image: image ?? this.image,
+    position: position ?? this.position,
+    mass: mass ?? this.mass,
+    atmosphere: atmosphere ?? this.atmosphere,
+  );
 
   Entity build() {
     final entity = Entity();
+    entity.add(PlanetTag());
 
     entity.add(
       Transform()
@@ -55,8 +70,8 @@ class PlanetBuilder {
 }
 
 class AtmosphereBuilder {
-  final double drag;
-  final Color color;
 
   const AtmosphereBuilder({required this.drag, required this.color});
+  final double drag;
+  final Color color;
 }

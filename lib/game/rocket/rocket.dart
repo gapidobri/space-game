@@ -1,15 +1,22 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/rocket/components/fuel_tank.dart';
+import 'package:space_game/game/rocket/components/landing_state.dart';
 import 'package:space_game/game/rocket/components/rocket_pilot.dart';
 
-class Rocket {
+class RocketTag extends Component {}
+
+class RocketBuilder {
   static Future<Entity> create({required AssetManager assetManager}) async {
     final entity = Entity();
+    entity.add(RocketTag());
 
     entity.add(Transform());
-    entity.add(RigidBody(mass: 10));
-    entity.add(RectangleCollider(halfWidth: 10, halfHeight: 20));
+    entity.add(RigidBody(mass: 10, momentOfInertia: 200));
+    entity.add(
+      RectangleCollider(halfWidth: 10, halfHeight: 20, restitution: 0.2),
+    );
 
     final atlas = await assetManager.loadImage('assets/atlas.png');
     entity.add(
@@ -17,8 +24,12 @@ class Rocket {
     );
 
     entity.add(
-      RocketPilot(thrustForce: 500, rotationForce: 5, boostMultiplier: 2),
+      RocketPilot(thrustForce: 500, rotationForce: 1000, boostMultiplier: 2),
     );
+
+    entity.add(FuelTank(maxFuel: 100, fuel: 100));
+
+    entity.add(LandingState());
 
     return entity;
   }
