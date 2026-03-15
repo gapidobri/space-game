@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/damage/damagable.dart';
+import 'package:space_game/game/mining/drill.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
@@ -31,7 +33,9 @@ class RocketBuilder {
     entity.add(FuelTank(maxFuel: 100, fuel: 100));
 
     entity.add(RocketLocationStore(location: RocketLocationInSpace()));
-    entity.add(Eva(maxRescueRange: 100));
+    entity.add(Eva(maxInteractionRange: 100));
+    entity.add(Damagable(maxHealth: 100));
+    entity.add(Drill(drillSpeed: 5));
 
     return entity;
   }

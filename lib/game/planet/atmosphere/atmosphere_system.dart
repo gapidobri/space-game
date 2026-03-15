@@ -1,5 +1,6 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
+import 'package:space_game/game/rocket/components/fuel_tank.dart';
 
 class AtmosphereSystem extends System {
   AtmosphereSystem();
@@ -17,16 +18,25 @@ class AtmosphereSystem extends System {
         final transform = entity.get<Transform>();
         final rigidBody = entity.get<RigidBody>();
 
-        if (rigidBody.isStatic) continue;
-
         final distance = pTransform.position.distanceTo(transform.position);
         if (distance > atmosphere.radius) continue;
 
-        final drag = rigidBody.velocity * -atmosphere.drag;
-        final angularDrag = rigidBody.angularVelocity * -atmosphere.drag;
+        // refueling
+        if (atmosphere.fuelRichness > 0) {
+          final fuelTank = entity.tryGet<FuelTank>();
+          if (fuelTank != null) {
+            fuelTank.fuel += atmosphere.fuelRichness * dt;
+          }
+        }
 
-        rigidBody.accumulatedForce.add(drag * rigidBody.inverseMass);
-        rigidBody.accumulatedTorque += angularDrag;
+        // drag
+        if (!rigidBody.isStatic) {
+          final drag = rigidBody.velocity * -atmosphere.drag;
+          final angularDrag = rigidBody.angularVelocity * -atmosphere.drag;
+
+          rigidBody.accumulatedForce.add(drag * rigidBody.inverseMass);
+          rigidBody.accumulatedTorque += angularDrag;
+        }
       }
     }
   }

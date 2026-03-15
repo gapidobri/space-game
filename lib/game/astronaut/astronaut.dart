@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
-import 'package:space_game/game/interaction/interactable.dart';
 
 class AstronautTag extends Component {}
 
@@ -12,18 +11,21 @@ class AstronautBuilder {
   final Image image;
   final AstronautLocation location;
 
-  AstronautBuilder copyWith({Image? image, AstronautLocation? location}) =>
-      AstronautBuilder(
-        image: image ?? this.image,
-        location: location ?? this.location,
-      );
+  AstronautBuilder copyWith({
+    Image? image,
+    AstronautLocation? location,
+    Entity? planet,
+    double? planetAngle,
+  }) => AstronautBuilder(
+    image: image ?? this.image,
+    location: location ?? this.location,
+  );
 
   Entity build() {
     final entity = Entity();
     entity.add(AstronautTag());
 
     entity.add(Transform()..scale = Vector2.all(2));
-    entity.add(Interactable());
 
     entity.add(
       Sprite(image: image, sourceRect: Rect.fromLTWH(50, 50, 30, 25), z: 200),

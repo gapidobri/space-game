@@ -1,7 +1,8 @@
 import 'package:gamengine/gamengine.dart';
 
 class Eva extends Component {
-  Eva({this.maxRescueRange = 50});
+  Eva({this.maxInteractionRange = 50});
 
-  double maxRescueRange;
+  double maxInteractionRange;
+  final Set<Entity> interactables = {};
 }

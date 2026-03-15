@@ -5,6 +5,7 @@ import 'package:space_game/game/planet/planet.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/rocket.dart';
 import 'package:collection/collection.dart';
+import 'package:space_game/game/utils.dart';
 
 class LandingAssistanceSystem extends System {
   LandingAssistanceSystem({
@@ -61,11 +62,9 @@ class LandingAssistanceSystem extends System {
         planetTransform,
       );
 
-      final isColliding =
-          eventBus.read<CollisionEvent>().firstWhereOrNull(
-            (event) => event.includes(rocket) && event.includes(planet),
-          ) !=
-          null;
+      final isColliding = eventBus.read<CollisionEvent>().containsWhere(
+        (event) => event.includes(rocket) && event.includes(planet),
+      );
 
       if (planetRocketAngle.abs() < 0.5 &&
           rigidBody.angularVelocity < 1 &&

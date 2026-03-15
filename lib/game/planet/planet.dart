@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/damage/damage_dealer.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
 
 class PlanetTag extends Component {}
@@ -17,7 +18,7 @@ class PlanetBuilder {
   final Image image;
   final AtmosphereBuilder? atmosphere;
 
-  PlanetBuilder copyWith({
+  PlanetBuilder _copyWith({
     Image? image,
     Vector2? position,
     double? mass,
@@ -28,6 +29,9 @@ class PlanetBuilder {
     mass: mass ?? this.mass,
     atmosphere: atmosphere ?? this.atmosphere,
   );
+
+  PlanetBuilder withAtmosphere(AtmosphereBuilder atmosphere) =>
+      _copyWith(atmosphere: atmosphere);
 
   Entity build() {
     final entity = Entity();
@@ -49,12 +53,15 @@ class PlanetBuilder {
         restitution: 0.2,
       ),
     );
+    entity.add(VelocityDamageDealer(damageMultiplier: 0.1));
 
     if (atmosphere != null) {
-      entity.add(Atmosphere(radius: 500, drag: atmosphere!.drag));
+      entity.add(
+        Atmosphere(radius: 500, drag: atmosphere!.drag, fuelRichness: 2),
+      );
       entity.add(
         CircleShape(
-          radius: 500,
+          radius: atmosphere!.radius,
           paint: Paint()
             ..color = atmosphere!.color
             ..maskFilter = MaskFilter.blur(BlurStyle.normal, 100),
@@ -69,7 +76,12 @@ class PlanetBuilder {
 }
 
 class AtmosphereBuilder {
-  const AtmosphereBuilder({required this.drag, required this.color});
+  const AtmosphereBuilder({
+    required this.radius,
+    required this.drag,
+    required this.color,
+  });
+  final double radius;
   final double drag;
   final Color color;
 }

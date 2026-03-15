@@ -12,8 +12,15 @@ class BackgroundBuilder {
   Entity build() {
     final entity = Entity();
 
-    entity.add(Transform(scale: Vector2.all(3)));
-    entity.add(Sprite(image: image, z: -500));
+    entity.add(Transform(scale: Vector2.all(2)));
+    entity.add(
+      TiledSprite(
+        image: image,
+        tileSize: Size(image.width.toDouble(), image.height.toDouble()),
+        areaSize: const Size(4096, 4096),
+        z: -500,
+      ),
+    );
     entity.add(Parallax(multiplier: parallax));
 
     return entity;

@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/interaction/interactable.dart';
+import 'package:space_game/game/rocket/components/eva.dart';
+import 'package:space_game/game/rocket/rocket.dart';
 
 class _InteractionIndicatorRef extends Component {
   _InteractionIndicatorRef(this.identicator);
@@ -14,15 +16,21 @@ class InteractionIndicatorSystem extends System {
 
   @override
   void update(double dt, World world, Commands commands) {
+    final rocket = world.query<RocketTag>().firstOrNull;
+    if (rocket == null) return;
+
+    final eva = rocket.get<Eva>();
+
     for (final entity in world.query<Interactable>()) {
       var idRef = entity.tryGet<_InteractionIndicatorRef>();
 
       if (idRef == null) {
         final identicator = Entity();
+        identicator.add(Parent(parent: entity));
         identicator.add(Transform());
         identicator.add(
           CircleShape(
-            radius: 100, // TODO: get from Eva
+            radius: eva.maxInteractionRange,
             paint: Paint()
               ..color = Color.fromARGB(100, 100, 255, 100)
               ..style = PaintingStyle.stroke
@@ -41,10 +49,14 @@ class InteractionIndicatorSystem extends System {
 
       final transform = entity.get<Transform>();
       final idTransform = identicator.get<Transform>();
+      final circleShape = identicator.get<CircleShape>();
+
+      circleShape.radius = eva.maxInteractionRange;
 
       idTransform.position.setFrom(transform.position);
     }
 
+    // cleanup
     for (final entity in world.query<_InteractionIndicatorRef>()) {
       if (entity.has<Interactable>()) continue;
 
