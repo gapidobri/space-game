@@ -1,13 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/damage/damagable.dart';
+import 'package:space_game/game/shared/damage/health.dart';
 import 'package:space_game/game/interaction/interaction_event.dart';
 import 'package:space_game/game/mining/drill.dart';
-import 'package:space_game/game/mining/minable.dart';
+import 'package:space_game/game/mining/resource_node.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
-import 'package:space_game/game/rocket/rocket.dart';
+import 'package:space_game/game/rocket/rocket_tag.dart';
 
 class MiningSystem extends System {
   MiningSystem({super.priority, required this.eventBus});
@@ -27,7 +27,7 @@ class MiningSystem extends System {
     }
 
     for (final event in eventBus.read<InteractionEvent>()) {
-      if (!event.entity.has<Minable>()) continue;
+      if (!event.entity.has<ResourceNode>()) continue;
 
       drill.drillingResource = event.entity;
     }
@@ -35,7 +35,7 @@ class MiningSystem extends System {
     final resource = drill.drillingResource;
     if (resource == null) return;
 
-    final minable = resource.get<Minable>();
+    final minable = resource.get<ResourceNode>();
 
     var gain = math.min(drill.drillSpeed * dt, minable.remaining);
 
@@ -47,9 +47,9 @@ class MiningSystem extends System {
         break;
 
       case ResourceType.health:
-        final damagable = rocket.get<Damagable>();
-        gain = math.min(gain, damagable.maxHealth - damagable.health);
-        damagable.health += gain;
+        final health = rocket.get<Health>();
+        gain = math.min(gain, health.maxHealth - health.currentHealth);
+        health.currentHealth += gain;
         break;
     }
 

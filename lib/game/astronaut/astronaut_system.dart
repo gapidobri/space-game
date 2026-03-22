@@ -1,7 +1,7 @@
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/astronaut/astronaut.dart';
+import 'package:space_game/game/astronaut/astronaut_tag.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
-import 'package:space_game/game/interaction/interactable.dart';
+import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/planet/occupancy/planet_occupant.dart';
 
 class AstronautSystem extends System {
@@ -18,8 +18,11 @@ class AstronautSystem extends System {
       switch (locationType) {
         case AstronautLocationOnPlanet(:final planet, :final angle):
           sprite.visible = true;
-          if (!astronaut.has<Interactable>()) {
-            commands.addComponent<Interactable>(astronaut, Interactable());
+          if (!astronaut.has<InteractionTarget>()) {
+            commands.addComponent<InteractionTarget>(
+              astronaut,
+              InteractionTarget(),
+            );
           }
           if (!astronaut.has<PlanetOccupant>()) {
             commands.addComponent<PlanetOccupant>(
@@ -31,8 +34,8 @@ class AstronautSystem extends System {
 
         case AstronautLocationInRocket():
           sprite.visible = false;
-          if (astronaut.has<Interactable>()) {
-            commands.removeComponent<Interactable>(astronaut);
+          if (astronaut.has<InteractionTarget>()) {
+            commands.removeComponent<InteractionTarget>(astronaut);
           }
           if (astronaut.has<PlanetOccupant>()) {
             commands.removeComponent<PlanetOccupant>(astronaut);

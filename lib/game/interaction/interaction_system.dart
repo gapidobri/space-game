@@ -1,10 +1,10 @@
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/interaction/interactable.dart';
+import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/interaction/interaction_attempt_event.dart';
 import 'package:space_game/game/interaction/interaction_event.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
-import 'package:space_game/game/rocket/rocket.dart';
+import 'package:space_game/game/rocket/rocket_tag.dart';
 
 class InteractionSystem extends System {
   InteractionSystem({super.priority, required this.eventBus});
@@ -24,7 +24,7 @@ class InteractionSystem extends System {
     final rocketLocation = rocket.get<RocketLocationStore>().location;
     if (rocketLocation is! RocketLocationLanded) return;
 
-    for (final entity in world.query<Interactable>()) {
+    for (final entity in world.query<InteractionTarget>()) {
       final transform = entity.get<Transform>();
 
       final distance = rocketT.position.distanceTo(transform.position);

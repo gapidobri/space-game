@@ -2,9 +2,9 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/background/parallax.dart';
 
 class ParallaxSystem extends System {
-  ParallaxSystem({super.priority, required this.camera});
+  ParallaxSystem({super.priority, required this.cameraState});
 
-  final CameraState camera;
+  final CameraState cameraState;
 
   @override
   void update(double dt, World world, Commands commands) {
@@ -12,7 +12,7 @@ class ParallaxSystem extends System {
       final parallax = entity.get<Parallax>();
       final transform = entity.get<Transform>();
 
-      transform.position.setFrom(camera.position * parallax.multiplier);
+      transform.position.setFrom(cameraState.position * parallax.multiplier);
     }
   }
 }

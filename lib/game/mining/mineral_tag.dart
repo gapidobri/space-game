@@ -1,3 +1,3 @@
 import 'package:gamengine/gamengine.dart';
 
-class Interactable extends Component {}
+class MineralTag extends Component {}

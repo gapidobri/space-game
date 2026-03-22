@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/planet/planet.dart';
+import 'package:space_game/game/planet/planet_tag.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
-import 'package:space_game/game/rocket/rocket.dart';
+import 'package:space_game/game/rocket/rocket_tag.dart';
 import 'package:collection/collection.dart';
 import 'package:space_game/game/utils.dart';
 

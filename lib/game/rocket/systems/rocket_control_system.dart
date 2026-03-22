@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/input.dart';
+import 'package:space_game/game/shared/input/input.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/components/rocket_pilot.dart';

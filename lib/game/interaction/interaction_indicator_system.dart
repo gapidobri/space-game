@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/interaction/interactable.dart';
+import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
-import 'package:space_game/game/rocket/rocket.dart';
+import 'package:space_game/game/rocket/rocket_tag.dart';
 
 class _InteractionIndicatorRef extends Component {
   _InteractionIndicatorRef(this.identicator);
@@ -21,7 +21,7 @@ class InteractionIndicatorSystem extends System {
 
     final eva = rocket.get<Eva>();
 
-    for (final entity in world.query<Interactable>()) {
+    for (final entity in world.query<InteractionTarget>()) {
       var idRef = entity.tryGet<_InteractionIndicatorRef>();
 
       if (idRef == null) {
@@ -58,7 +58,7 @@ class InteractionIndicatorSystem extends System {
 
     // cleanup
     for (final entity in world.query<_InteractionIndicatorRef>()) {
-      if (entity.has<Interactable>()) continue;
+      if (entity.has<InteractionTarget>()) continue;
 
       final ref = entity.get<_InteractionIndicatorRef>();
       commands.removeComponent<_InteractionIndicatorRef>(entity);

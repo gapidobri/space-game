@@ -1,6 +1,6 @@
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/damage/damagable.dart';
-import 'package:space_game/game/damage/damage_dealer.dart';
+import 'package:space_game/game/shared/damage/health.dart';
+import 'package:space_game/game/shared/damage/damage_dealer.dart';
 
 class DamageSystem extends System {
   DamageSystem({super.priority, required this.eventBus});
@@ -28,17 +28,17 @@ class DamageSystem extends System {
     required Entity damageDealerEntity,
     required double relativeSpeed,
   }) {
-    final damagable = damagableEntity.tryGet<Damagable>();
+    final health = damagableEntity.tryGet<Health>();
 
-    if (damagable == null) return;
+    if (health == null) return;
 
     if (damageDealerEntity.has<ConstantDamageDealer>()) {
       final damageDealer = damageDealerEntity.get<ConstantDamageDealer>();
-      damagable.health -= damageDealer.damage;
+      health.currentHealth -= damageDealer.damage;
     } else if (damageDealerEntity.has<VelocityDamageDealer>()) {
       final damageDealer = damageDealerEntity.get<VelocityDamageDealer>();
       if (relativeSpeed < damageDealer.minVelocity) return;
-      damagable.health -= relativeSpeed * damageDealer.damageMultiplier;
+      health.currentHealth -= relativeSpeed * damageDealer.damageMultiplier;
     }
   }
 }

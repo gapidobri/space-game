@@ -1,9 +1,9 @@
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/astronaut/astronaut.dart';
+import 'package:space_game/game/astronaut/astronaut_tag.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
-import 'package:space_game/game/rocket/astronaut_rescue/rescue_attempt_event.dart';
-import 'package:space_game/game/rocket/rocket.dart';
+import 'package:space_game/game/rocket/rescue/rescue_attempt_event.dart';
+import 'package:space_game/game/rocket/rocket_tag.dart';
 
 class AstronautRescueSystem extends System {
   AstronautRescueSystem({super.priority, required this.eventBus});
