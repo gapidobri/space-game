@@ -19,6 +19,7 @@ import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
 import 'package:space_game/game/stage/systems/stage_cleanup_system.dart';
 import 'package:space_game/game/stage/systems/stage_setup_system.dart';
+import 'package:space_game/game/stage/systems/stage_transition_system.dart';
 
 void registerGameSystems({required GameSession session}) {
   final GameSession(
@@ -51,6 +52,7 @@ void registerGameSystems({required GameSession session}) {
   // run
   engine.addSystem(RunFlowSystem(eventBus: engine.eventBus));
   engine.addSystem(StageSetupSystem(assetManager: assetManager));
+  engine.addSystem(StageTransitionSystem(cameraState: cameraState));
   engine.addSystem(StageCleanupSystem());
   engine.addSystem(ObjectiveSystem());
 

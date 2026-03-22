@@ -1,7 +1,10 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/run/components/current_stage.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/run/events/run_phase_changed_event.dart';
+import 'package:space_game/game/run/run_tag.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
+import 'package:space_game/game/stage/components/stage_transition_state.dart';
 
 class RunFlowSystem extends System {
   RunFlowSystem({super.priority, required this.eventBus});
@@ -10,8 +13,12 @@ class RunFlowSystem extends System {
 
   @override
   void update(double dt, World world, Commands commands) {
-    final runState = world.tryGetComponent<RunState>();
-    if (runState == null) return;
+    final run = world.query<RunTag>().firstOrNull;
+    if (run == null) return;
+
+    final runState = run.get<RunState>();
+
+    final stage = run.get<CurrentStage>().stage;
 
     switch (runState.phase) {
       case .runStart: // -> stageEnter
@@ -20,8 +27,9 @@ class RunFlowSystem extends System {
         break;
 
       case .stageEnter: // -> stagePlay, finalBoss
-        final stageSetupState = world.tryGetComponent<StageSetupState>();
-        if (stageSetupState == null || stageSetupState.status != .ready) {
+        if (stage == null ||
+            stage.get<StageSetupState>().status != .ready ||
+            !stage.get<StageTransitionState>().playerPlaced) {
           break;
         }
         _changePhase(runState, .stagePlay);

@@ -11,4 +11,5 @@ extension IterableExtension<T> on Iterable<T> {
 
 extension Vector2Extension on Vector2 {
   Offset get offset => Offset(x, y);
+  Rect get rect => Rect.fromLTWH(0, 0, x, y);
 }

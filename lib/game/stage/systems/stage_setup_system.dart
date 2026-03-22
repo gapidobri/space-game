@@ -1,9 +1,10 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/run/components/current_stage.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
+import 'package:space_game/game/stage/stage_config.dart';
 import 'package:space_game/game/stage/stage_factory.dart';
-import 'package:space_game/game/world/level/level_config.dart';
-import 'package:space_game/game/world/level/level_generator.dart';
+import 'package:space_game/game/stage/stage_generator.dart';
 
 class StageSetupSystem extends System {
   StageSetupSystem({super.priority, required this.assetManager});
@@ -12,27 +13,30 @@ class StageSetupSystem extends System {
 
   @override
   void update(double dt, World world, Commands commands) async {
-    final runState = world.tryGetComponent<RunState>();
-    if (runState == null || runState.phase != .stageEnter) return;
+    final run = world.query<RunState>().firstOrNull;
+    if (run == null) return;
 
-    var setupState = world.tryGetComponent<StageSetupState>();
-    if (setupState != null && setupState.status == .generating) return;
+    final runState = run.get<RunState>();
+    if (runState.phase != .stageEnter) return;
 
-    final stage = createStage(requiredTeleporterParts: 3);
+    final currentStage = run.get<CurrentStage>().stage;
+    if (currentStage != null) return;
+
+    final stage = createStage(requiredTeleporterParts: 3, parent: run);
     commands.spawn(stage);
+    run.get<CurrentStage>().stage = stage;
 
-    setupState = stage.get<StageSetupState>();
-
-    // TODO: generate config
-    final levelConfig = LevelConfig(planetCount: 7);
+    final setupState = stage.get<StageSetupState>();
 
     setupState.status = .generating;
+    // TODO: generate config
+    final stageConfig = StageConfig(stageSize: Vector2(10000, 10000));
 
-    await generateLevel(
+    await generateStage(
       commands: commands,
       assetManager: assetManager,
-      levelConfig: levelConfig,
-      parent: stage,
+      stageConfig: stageConfig,
+      stage: stage,
     );
 
     setupState.status = .ready;

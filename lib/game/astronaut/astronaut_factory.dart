@@ -15,7 +15,7 @@ Entity createAstronaut({
   entity.add(AstronautTag());
 
   // position
-  entity.add(Transform()..scale = Vector2.all(2));
+  entity.add(Transform()..scale.setValues(2, 2));
 
   // rendering
   entity.add(
