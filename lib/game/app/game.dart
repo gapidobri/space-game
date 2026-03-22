@@ -3,6 +3,7 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/app/game_bootstrap.dart';
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/hud/game_overlay.dart';
+import 'package:space_game/game/run/components/run_state.dart';
 
 class SpaceGame extends StatefulWidget {
   const SpaceGame({super.key});
@@ -42,6 +43,25 @@ class _SpaceGameState extends State<SpaceGame> {
             GameOverlay(
               hudStateStore: _session.hudStateStore,
               eventBus: _session.engine.eventBus,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () =>
+                          _session.engine.world
+                                  .tryGetComponent<RunState>()
+                                  ?.phase =
+                              .stageExit,
+                      child: Text('Complete stage'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         );

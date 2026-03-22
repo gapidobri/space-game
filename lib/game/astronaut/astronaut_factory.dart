@@ -8,6 +8,7 @@ import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart
 Entity createAstronaut({
   required Image image,
   required AstronautLocation location,
+  Entity? parent,
 }) {
   final entity = Entity();
   // identity
@@ -26,6 +27,11 @@ Entity createAstronaut({
 
   // ui
   entity.add(OffscreenIndicator());
+
+  // cleanup
+  if (parent != null) {
+    entity.add(Parent(parent: parent));
+  }
 
   return entity;
 }

@@ -1,662 +1,482 @@
-Here’s a **detailed Game Design Document (GDD)** for your 2D game based on what you’ve already built. I’ll expand your mechanics into a full game loop, systems, upgrades, story, and progression. 🚀👾
-
----
-
 # Game Design Document
 
-## Working Title: **Orbital Rescue**
+## Working Title
 
-### Genre
+**Orbital Rescue**
 
-2D Physics-Based Action / Exploration / Rescue
+## Genre
 
-### Core Fantasy
+2D physics-based action roguelike with exploration, combat, mining, and rescue objectives.
 
-You pilot a fragile but upgradeable rescue rocket through dangerous planetary systems, saving stranded astronauts while being hunted by alien forces and managing limited resources.
+## Core Fantasy
 
-The game mixes:
+The player pilots a fragile but upgradeable rocket through hostile space sectors, improvising a run one stage at a time. Each stage offers objectives, resources, shops, escalating alien pressure, and a risky choice between leaving early or staying longer for power.
 
-* physics flight
-* survival/resource management
-* combat
-* exploration
-* rescue strategy
+## High-Level Pillars
 
----
+- Physics-driven ship control is always central.
+- Each run is a sequence of generated stages, not an infinite open universe.
+- The player progresses by completing objectives, gathering resources, and upgrading the rocket.
+- Difficulty rises over time and across stages.
+- The player can continue deeper into the run or intentionally end it by pursuing the final boss.
 
-# Story & World
+## Run Structure
 
-## Premise
+The game is an "endless" roguelike run in the sense that the player can keep advancing through stages as long as they survive. The run does not end automatically after a fixed number of stages.
 
-In the year **2347**, humanity has expanded into distant planetary systems.
+Each run follows this loop:
 
-A massive alien civilization suddenly appears and begins attacking human colonies.
+1. Spawn into a randomly generated stage.
+2. Discover the local map, planets, hazards, and points of interest.
+3. Complete required objectives.
+4. Optionally complete side objectives for more money, resources, and upgrades.
+5. Gather the materials or key parts needed to repair the stage teleporter.
+6. Visit shops to upgrade the rocket.
+7. Activate the teleporter and survive the exit event.
+8. Jump to the next stage with higher difficulty.
+9. Eventually choose to summon and defeat the final boss to end the run.
 
-Your role:
-**Pilot of the Interstellar Emergency Rescue Unit (IERU).**
+Failure ends the run when the rocket is destroyed or the player becomes unable to continue because of critical resource depletion.
 
-Your mission:
+## Stage Structure
 
-* Enter hostile systems
-* Rescue stranded astronauts
-* Recover valuable research
-* Escape alive
+Each stage is a finite generated star sector. It should feel large enough to explore but small enough that the player does not get lost or drift away from the core loop.
 
-Every system you enter is partially overrun by alien lifeforms.
+A stage contains:
 
-The longer you stay, the more enemies arrive.
+- several planets or moons
+- asteroid fields or debris zones
+- alien nests or patrol routes
+- objective sites
+- one or more shops on selected planets
+- a damaged teleporter or jump gate
+- optional special events
 
----
+The player is not expected to clear the whole stage. Each stage should contain more content than is required for progression.
 
-# Core Gameplay Loop
+## Why Stages Instead of an Infinite World
 
-1. Enter a planetary system
-2. Scan planets/moons
-3. Land on planets carefully using physics controls
-4. Rescue astronauts
-5. Mine resources
-6. Fight or evade aliens
-7. Manage fuel and health
-8. Upgrade your rocket
-9. Escape the system
+The game should use discrete generated stages rather than a fully infinite world.
 
-Repeat with increasing difficulty.
+Reasons:
 
----
+- objective placement is easier to control
+- pacing is easier to understand and balance
+- shops, mini-bosses, and teleporter progression can be authored more intentionally
+- players have freedom without becoming directionless
+- performance, save/load, and generation are easier to manage
+- the final boss becomes a deliberate goal rather than a random discovery
 
-# Player Controls (Current + Expanded)
+The target feeling is "large but guided", not "boundless but unfocused".
 
-**Left Arrow** – rotate left
-**Right Arrow** – rotate right
-**Space** – main thruster
+## Objectives
 
-Possible additions:
+Each stage generates a set of required objectives plus a smaller set of optional objectives.
 
-**Shift** – boost thrusters (high fuel usage)
-**Z** – fire weapon
-**X** – deploy mini-bot
-**E** – interact / rescue / mine
+### Required Objectives
 
-Difficulty option:
-
-* Assist Mode: automatic counter-rotation
-* Simulation Mode: full physics drift
-
----
-
-# Rocket Systems
-
-### 1. Fuel
-
-Used for:
-
-* thrust
-* boost
-* escaping gravity wells
-
-Fuel forces the player to plan movement carefully.
-
----
-
-### 2. Health
-
-Represents hull integrity.
-
-Damage sources:
-
-* alien attacks
-* hard landings
-* collisions
-* hazardous environments
-
----
-
-# How to Replenish Fuel
-
-Multiple ways keep gameplay varied.
-
-### 1. Fuel Crystals
-
-Found on planets.
-
-Mechanic:
-
-* land
-* mine crystals
-* convert into fuel
-
-Risk: aliens guard rich deposits.
-
----
-
-### 2. Fuel Stations (Rare)
-
-Abandoned human outposts.
-
-Provides:
-
-* full fuel refill
-* small repairs
-
-But may activate alien waves.
-
----
-
-### 3. Astronaut Engineers
-
-Some rescued astronauts can temporarily improve fuel efficiency.
-
-Example:
-+25% fuel efficiency for the level.
-
----
-
-### 4. Atmospheric Skimming
-
-Certain gas planets allow fuel harvesting.
-
-Mechanic:
-
-* fly low in atmosphere
-* avoid storms
-* slowly regenerate fuel.
-
-High risk / high reward.
-
----
-
-# How to Restore Health
-
-### 1. Repair Kits
-
-Found in wreckage.
-
-Restores a portion of health.
-
----
-
-### 2. Landing Platforms
-
-Stable landing pads auto-repair slowly.
-
-Encourages safe landing gameplay.
-
----
-
-### 3. Rescue Medics
-
-Some astronauts heal your ship on pickup.
-
----
-
-### 4. Nano-Repair Upgrade
-
-Passive hull regeneration when not taking damage.
-
-Late-game upgrade.
-
----
-
-# Astronaut Rescue System
-
-Astronauts are scattered across planets.
-
-Types:
-
-### Scientist
-
-Unlocks research and upgrades.
-
-### Engineer
-
-Improves ship performance temporarily.
-
-### Soldier
-
-Adds combat support.
-
-### Civilian
-
-Increases mission score.
-
----
-
-Rescue mechanics:
-
-1. Land safely
-2. Open hatch
-3. Astronaut boards
-4. Protect them until extraction
-
-If you die → mission failed.
-
----
-
-# Alien Enemies
-
-Aliens actively hunt the player.
-
-## Types
-
-### Scout Drones
-
-Fast
-Weak
-Swarm behavior
-
-### Hunters
-
-Track you across the map.
-
-### Artillery Organisms
-
-Stationary planet defenses.
-
-### Leechers
-
-Drain your fuel.
-
-### Titans (Mini Bosses)
-
-Guard astronauts or resources.
-
----
-
-# Combat System
-
-Your rocket **can shoot**, but combat should never overpower navigation skill.
-
----
-
-# Weapon Types
-
-### 1. Pulse Blaster
-
-Default weapon.
-
-Fast
-Low damage
-Infinite ammo with cooldown.
-
----
-
-### 2. Plasma Rockets
-
-Slow
-Heavy damage
-Consumes fuel.
-
----
-
-### 3. Gravity Bomb
-
-Pulls enemies into a vortex.
-
-Great near planets.
-
----
-
-### 4. Ion Beam
-
-Continuous beam
-High energy drain.
-
----
-
-# Mini Bot Companion
-
-A floating support drone.
-
-Unlock early in the game.
-
-Functions:
-
-Auto-targets enemies
-Collects nearby resources
-Warns of threats
-
-Upgradeable:
-
-Level 1 – simple shooter
-Level 2 – shield generator
-Level 3 – dual cannons
-Level 4 – repair drone
-Level 5 – missile drone
-
-Player can recall or deploy it.
-
----
-
-# Mining System
-
-Adds exploration depth.
-
-Resources found on planets:
-
-Iron
-Plasma Crystals
-Alien Biomass
-Dark Matter Fragments
-
-Used for upgrades.
-
-Mining methods:
-
-Laser mining
-Landing drill
-Mini-bot auto collector
-
-Danger:
-Mining noise attracts aliens.
-
----
-
-# Planet Types
-
-Each planet changes gameplay.
-
-### Rocky
-
-Safe landing zones
-Basic resources
-
-### Gas Giant
-
-No landing
-Fuel harvesting
-
-### Ice Planet
-
-Low gravity
-Slippery physics
-
-### Lava Planet
-
-High damage environment
-
-### Alien Hive World
-
-Constant enemies
-High rewards
-
----
-
-# Level Structure
-
-Each level = **Star System**
-
-Contains:
-
-* several planets
-* asteroid fields
-* alien nests
-* stranded astronauts
-
----
-
-# Objectives
-
-Primary:
-Rescue required astronauts.
-
-Secondary:
-
-* mine resources
-* destroy alien hives
-* retrieve black boxes
-* activate ancient alien tech
-* escort damaged ships
-
----
-
-# Dynamic Events
-
-Random events increase replayability.
+Required objectives are the main way the player earns teleporter repair progress and stage rewards.
 
 Examples:
 
-Solar flare
-Meteor shower
-Alien swarm migration
-Distress signals
-Derelict mega-ships
+- rescue stranded astronauts
+- destroy alien nests
+- mine a target amount of rare resources
+- eliminate elite alien packs
+- recover black boxes from wreckage
 
----
+The player should usually need to complete 2-3 required objectives per stage.
 
-# Difficulty Progression
+### Optional Objectives
 
-Difficulty increases through:
-
-More aggressive aliens
-Complex gravity fields
-Multiple objectives
-Hazardous environments
-Limited fuel availability
-
-Later systems become **puzzle-like survival challenges**.
-
----
-
-# Boss Encounters
-
-End of some systems.
+Optional objectives provide extra money, rare resources, special upgrades, or safety advantages for later stages.
 
 Examples:
 
-Alien Mothership
-Planetary Brain Organism
-Gravity Leviathan
+- investigate a distress signal
+- escort a damaged ship
+- clear an elite ambush
+- raid a high-risk alien cache
+- salvage a drifting research station
 
-Boss fights require:
-movement mastery
-resource management
+Optional content should reward greed and skill, but should not be mandatory for stage completion.
 
----
+## Teleporter Progression
 
-# Upgrades
+Each stage ends with repairing and activating a teleporter or jump gate.
 
-Resources allow permanent improvements.
+The teleporter is the stage exit and the main pacing anchor.
 
----
+### Repair Rules
 
-# Rocket Upgrades
+- the teleporter begins damaged or partially offline
+- it requires a small number of repair parts, energy cells, or resources
+- required objectives always provide enough progress to make the teleporter usable
+- optional objectives can provide bonus repair parts, money, or reduced activation risk
 
-### Engine
+The repair system should feel integrated with the stage rather than like a separate grind. Players should not need to mine random rocks for an extended period just to leave.
 
-Fuel efficiency
-More thrust
-Boost unlock
+### Activation Event
 
-### Hull
+Once repaired, the teleporter can be activated. Activation should trigger a short high-pressure sequence such as:
 
-More health
-Damage resistance
+- alien defense wave
+- mini-boss ambush
+- environmental instability
+- power-up countdown that attracts enemies
 
-### Weapons
+This gives each stage a strong climax before transition.
 
-Unlock new weapons
-Higher damage
+## Difficulty Progression
 
-### Fuel Tanks
+Difficulty rises through both time and stage depth.
 
-Increase capacity
+### Time Pressure
 
-### Landing Stabilizers
+The longer the player stays in a stage, the more dangerous it becomes.
 
-Reduce crash damage.
+Examples:
 
----
+- more aliens spawn
+- elite variants appear
+- patrol density increases
+- resource sites become contested
+- random attack events happen more often
 
-# Special Modules
+### Stage Depth
 
-Shield Generator
-Auto Stabilizer
-Cloaking Device
-Wormhole Escape
+Each new stage raises the baseline challenge.
 
----
+Examples:
 
-# Player Progression
+- stronger enemy stats
+- more advanced alien types
+- harsher environmental hazards
+- more complex objective combinations
+- tougher teleporter activation events
 
-Player builds their own **rescue ship style**:
+This creates the core tension of the run:
 
-Combat focused
-Exploration focused
-Speed runner
-Resource collector
+- leave early and stay underpowered
+- stay longer and risk death for more upgrades
 
----
+## Final Boss and Ending the Run
 
-# UI / HUD
+The run can continue through stage after stage, but the player needs a clear intentional way to end it.
 
-Important for physics gameplay.
+After reaching a late-run threshold, the player unlocks the ability to pursue a final boss.
 
----
+Examples:
 
-# Main HUD
+- a special beacon appears after a certain stage
+- enough alien cores have been collected
+- a final gateway can be powered after several teleporter activations
 
-Top Left
-Health Bar
+The player chooses when to commit to the final boss path.
 
-Top Right
-Fuel Gauge
+Defeating the final boss counts as a successful run completion.
 
-Center
-Velocity Vector Indicator
+## Core Gameplay Loop Inside a Stage
 
-Bottom Left
-Mini-Map / Radar
+1. Enter stage.
+2. Scout the area and identify objectives, shops, and hazards.
+3. Choose a route based on fuel, health, and current build.
+4. Complete required objectives while fighting or avoiding aliens.
+5. Gather resources and upgrades.
+6. Decide whether to push optional content.
+7. Repair and activate the teleporter.
+8. Survive the activation event.
+9. Travel to the next stage.
 
-Bottom Right
-Weapon + Mini-bot status
+## Rocket Systems
 
----
+### Fuel
 
-# Additional Indicators
+Fuel is used for:
 
-Landing stability meter
-Gravity direction arrow
-Alien proximity alert
-Astronaut tracker
+- thrust
+- boost
+- combat tools that consume energy or fuel
+- recovering from bad flight paths
 
----
+Fuel is both a survival resource and a routing constraint.
 
-# Radar System
+### Health
 
-Shows:
-Astronauts
-Aliens
-Resources
-Fuel stations
+Health represents hull integrity.
 
-Upgradable for better range.
+Damage sources include:
 
----
+- alien attacks
+- collisions
+- hard landings
+- hazardous environments
 
-# Landing UI
+### Money
 
-When near surface:
+Money is the main shop currency.
 
-Altitude meter
-Safe landing speed indicator
-Surface slope warning
+It is earned from:
 
-This helps avoid crashes.
+- objective rewards
+- salvaging
+- elite kills
+- optional events
 
----
+### Materials
 
-# Mission End Screen
+Materials are used for teleporter repair, crafting-like upgrades, or special purchases.
 
-Displays:
+Examples:
 
-Astronauts rescued
-Resources collected
-Aliens destroyed
-Time survived
-Accuracy
-Landing quality
+- ore
+- fuel crystals
+- alien cores
+- circuit fragments
 
-Rewards upgrade currency.
+## Player Actions
 
----
+Core controls:
 
-# Audio Design
+- rotate left
+- rotate right
+- thrust
+- interact
+- fire weapon
+- boost
 
-Thruster sound changes with power.
+Potential advanced actions:
 
-Alien sounds directional.
+- deploy support drone
+- use active equipment
+- harvest resources
+- activate temporary defense tools
 
-Music intensity increases when chased.
+## Exploration and Navigation
 
-Silence in deep space moments.
+Exploration should be meaningful but bounded.
 
----
+Design goals:
 
-# Visual Style
+- the player should usually have 2-3 meaningful route choices
+- radar, scans, and visual landmarks should help players orient themselves
+- travel time should create tension, not dead space
+- the player should never feel fully lost
 
-2D but atmospheric.
+Points of interest should be readable on the map:
 
-Inspirations:
+- objective locations
+- shops
+- teleporter
+- rare events
+- dangerous zones
 
-* FTL
-* Noita
-* Lunar Lander
-* Dome Keeper
+## Shops and Upgrades
 
-Features:
+Some planets contain shops, stations, or traders that offer rocket upgrades during the run.
 
-Glowing alien biomes
-Dynamic thruster particles
-Planet atmospheres
-Debris fields
+Shops are not guaranteed to be equally accessible every stage. Route planning matters.
 
----
+### Shop Goals
 
-# Replayability
+- give players a way to convert money into power
+- create route decisions
+- encourage short detours
+- support different builds across runs
 
-Procedural elements:
+### Upgrade Categories
 
-Planet layouts
-Astronaut locations
-Alien spawns
-Resource distribution
-Events
+- shields and hull durability
+- fuel efficiency and tank size
+- engine power and mobility
+- primary weapon upgrades
+- secondary weapon unlocks
+- utility modules
+- mining efficiency
+- radar and detection systems
 
-Every system feels new.
+### Example Utility Modules
 
----
+- shield generator
+- auto stabilizer
+- emergency fuel recycler
+- repair nanites
+- cargo magnet
+- teleporter charge booster
 
-# Endgame
+## Objective Types
 
-Final systems reveal the alien motive.
+The objective pool should support varied run pacing.
 
-Possible twist:
+### Rescue
 
-Aliens are **protecting something**.
+Land near survivors, secure the zone, and extract astronauts.
 
-Final mission:
-Enter the alien homeworld and rescue the last survivors.
+### Mining
 
----
+Harvest target resources from risky locations.
 
-# Possible Title Ideas
+### Elimination
 
-Orbital Rescue
-Gravity Salvager
-Last Rocket
-Astral Lifeline
-Rescue Vector
+Destroy alien nests, elite squads, or fortified targets.
 
----
+### Recovery
 
-# If you want
+Collect parts, research, or black boxes from wreckage.
 
-I can also help you design:
+### Defense
 
-* the **game architecture for your engine**
-* **entity systems**
-* **physics model**
-* **enemy AI**
-* **procedural planet generation**
-* **upgrade trees**
-* **fun mechanics that make the game addictive**.
+Hold a position while systems charge, civilians evacuate, or machinery repairs.
+
+### Escort
+
+Protect damaged ships, drones, or transports.
+
+## Alien Pressure
+
+Aliens should feel like a growing environmental threat, not only discrete enemies.
+
+Threat escalates through:
+
+- random ambushes
+- roaming patrols
+- objective defenders
+- teleporter activation waves
+- timed pressure increases
+
+Enemy variety can include:
+
+- scouts
+- hunters
+- artillery organisms
+- shielded elites
+- fuel-draining parasites
+- mini-boss creatures
+
+## Mini-Bosses
+
+Mini-bosses appear in higher-threat moments and help punctuate stage pacing.
+
+Possible triggers:
+
+- late-stage threat level
+- optional challenge contracts
+- teleporter activation
+- special planets or alien hives
+
+Mini-bosses should drop high-value rewards such as:
+
+- rare upgrades
+- large money payouts
+- guaranteed repair parts
+- boss progression items
+
+## Resource Sources
+
+Resources and recovery should come from multiple gameplay verbs so the run stays varied.
+
+### Fuel Sources
+
+- fuel crystals
+- refueling stations
+- mission rewards
+- atmospheric harvesting on specific planets
+
+### Health Recovery
+
+- repair kits
+- safe repair pads
+- shop repairs
+- passive repair upgrades
+
+### Money and Materials
+
+- objectives
+- optional events
+- salvage
+- elite encounters
+- mining
+
+## Build Variety
+
+The player should be able to shape a run around different strengths.
+
+Examples:
+
+- mobility and evasion
+- shield-heavy survival
+- precision combat
+- explosive heavy weapons
+- mining and economy
+- support drone utility
+
+The system should support strong combinations without requiring one dominant build.
+
+## Replayability
+
+Replayability comes from:
+
+- generated stage layouts
+- varied objective combinations
+- changing shop locations
+- random events
+- different upgrade offers
+- build diversity
+- different timing decisions around teleporter exits
+
+The goal is that players remember runs by the choices they made, not only by the random seed.
+
+## UI and Feedback
+
+The HUD should clearly communicate:
+
+- health
+- fuel
+- money
+- current objective progress
+- teleporter repair progress
+- threat level
+- mini-map or radar
+- weapon and utility cooldowns
+
+Important support indicators:
+
+- landing safety
+- nearby hazards
+- incoming attacks
+- shop markers
+- teleporter readiness
+
+## Audio and Visual Direction
+
+Visual style should support readable physics movement and strong atmosphere.
+
+Key visual goals:
+
+- readable planets and hazard zones
+- satisfying thruster and weapon feedback
+- clear objective markers
+- escalating teleporter event spectacle
+- distinct silhouettes for enemy tiers
+
+Audio goals:
+
+- powerful thruster feedback
+- rising combat intensity under pressure
+- readable teleporter and objective cues
+- contrasting calm exploration and panic moments
+
+## Long-Term Direction
+
+The project should prioritize:
+
+1. satisfying flight and landing
+2. clean stage loop with teleporter progression
+3. objective variety
+4. enemy pressure scaling
+5. shops and build variety
+6. mini-boss and final boss structure
+
+## Design Summary
+
+The game should be built around stage-based roguelike runs rather than an infinite open world. Each stage presents a bounded but replayable sandbox with required objectives, optional opportunities, shops, rising alien pressure, and a teleporter exit. The player grows stronger through upgrades while the game grows more dangerous over time. The run ends either in failure or by intentionally defeating the final boss.

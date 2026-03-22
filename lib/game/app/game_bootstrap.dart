@@ -1,19 +1,20 @@
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/rocket/rocket_factory.dart';
 import 'package:space_game/game/app/system_registry.dart';
-import 'package:space_game/game/world/level/level_config.dart';
-import 'package:space_game/game/world/level/level_generator.dart';
+import 'package:space_game/game/run/run_factory.dart';
 
 Future<void> bootstrapGame(GameSession session) async {
-  session.engine.addEntity(
-    createRocket(
-      image: await session.assetManager.loadImage('assets/atlas.png'),
-    ),
+  final GameSession(:engine, :assetManager) = session;
+
+  engine.addEntity(
+    createRocket(image: await assetManager.loadImage('assets/atlas.png')),
   );
 
+  engine.addEntity(createRun());
+
+  // final levelConfig = LevelConfig(planetCount: 7);
+
+  // await generateLevel(session: session, levelConfig: levelConfig);
+
   registerGameSystems(session: session);
-
-  final levelConfig = LevelConfig(planetCount: 7);
-
-  await generateLevel(session: session, levelConfig: levelConfig);
 }

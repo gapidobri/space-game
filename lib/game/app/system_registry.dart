@@ -2,6 +2,8 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
 import 'package:space_game/game/background/parallax_system.dart';
+import 'package:space_game/game/objective/systems/objective_system.dart';
+import 'package:space_game/game/run/systems/run_flow_system.dart';
 import 'package:space_game/game/shared/damage/damage_system.dart';
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/hud/hud_projector.dart';
@@ -15,6 +17,8 @@ import 'package:space_game/game/planet/occupancy/planet_occupancy_system.dart';
 import 'package:space_game/game/rocket/rescue/astronaut_rescue_system.dart';
 import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
+import 'package:space_game/game/stage/systems/stage_cleanup_system.dart';
+import 'package:space_game/game/stage/systems/stage_setup_system.dart';
 
 void registerGameSystems({required GameSession session}) {
   final GameSession(
@@ -23,6 +27,7 @@ void registerGameSystems({required GameSession session}) {
     :cameraState,
     :hudStateStore,
     :renderQueue,
+    :assetManager,
   ) = session;
 
   // input
@@ -30,11 +35,7 @@ void registerGameSystems({required GameSession session}) {
     InputSystem(
       eventBus: engine.eventBus,
       actionState: inputState,
-      keymap: InputKeymap<InputAction>()
-        ..registerAction(action: .rotateLeft, keys: [.arrowLeft, .keyA])
-        ..registerAction(action: .rotateRight, keys: [.arrowRight, .keyD])
-        ..registerAction(action: .thrust, keys: [.space])
-        ..registerAction(action: .boost, keys: [.shift]),
+      keymap: createInputKeymap(),
     ),
   );
 
@@ -46,6 +47,12 @@ void registerGameSystems({required GameSession session}) {
   // physics
   engine.addSystem(PhysicsSystem());
   engine.addSystem(CollisionSystem(eventBus: engine.eventBus));
+
+  // run
+  engine.addSystem(RunFlowSystem(eventBus: engine.eventBus));
+  engine.addSystem(StageSetupSystem(assetManager: assetManager));
+  engine.addSystem(StageCleanupSystem());
+  engine.addSystem(ObjectiveSystem());
 
   // gameplay resolution
   engine.addSystem(AstronautSystem());

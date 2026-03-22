@@ -11,6 +11,7 @@ Entity createPlanet({
   required double mass,
   Vector2? position,
   AtmosphereConfig? atmosphere,
+  Entity? parent,
 }) {
   final entity = Entity();
 
@@ -53,6 +54,11 @@ Entity createPlanet({
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 100),
       ),
     );
+  }
+
+  // cleanup
+  if (parent != null) {
+    entity.add(Parent(parent: parent));
   }
 
   return entity;
