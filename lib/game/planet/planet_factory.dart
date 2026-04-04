@@ -1,18 +1,21 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/planet/planet_spawn_spec.dart';
 import 'package:space_game/game/shared/damage/damage_dealer.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
-import 'package:space_game/game/planet/atmosphere/atmosphere_config.dart';
 import 'package:space_game/game/planet/planet_tag.dart';
 
-Entity createPlanet({
-  required Image image,
-  required double mass,
-  Vector2? position,
-  AtmosphereConfig? atmosphere,
-  Entity? parent,
-}) {
+Entity createPlanet(PlanetSpawnSpec spec) {
+  final PlanetSpawnSpec(
+    :image,
+    :position,
+    :mass,
+    :radius,
+    :atmosphere,
+    :parent,
+  ) = spec;
+
   final entity = Entity();
 
   // identity
@@ -24,7 +27,7 @@ Entity createPlanet({
   entity.add(GravitySource(mass: mass));
   entity.add(
     CircleCollider(
-      radius: 300,
+      radius: radius,
       staticFriction: 20,
       dynamicFriction: 20,
       restitution: 0.2,

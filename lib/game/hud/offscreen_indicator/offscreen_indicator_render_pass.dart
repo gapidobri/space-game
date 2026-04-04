@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
-import 'package:space_game/game/utils.dart';
 
 class OffscreenIndicatorRenderPass extends RenderPass {
   OffscreenIndicatorRenderPass();
@@ -19,9 +18,9 @@ class OffscreenIndicatorRenderPass extends RenderPass {
 
     for (final entity in world.query2<Transform, OffscreenIndicator>()) {
       final transform = entity.get<Transform>();
-      final target = transform.position.offset;
+      final target = transform.position.toOffset();
 
-      if (viewRect.contains(transform.position.offset)) {
+      if (viewRect.contains(transform.position.toOffset())) {
         continue;
       }
 

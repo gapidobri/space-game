@@ -4,7 +4,7 @@ import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
 import 'package:space_game/game/stage/stage_config.dart';
 import 'package:space_game/game/stage/stage_factory.dart';
-import 'package:space_game/game/stage/stage_generator.dart';
+import 'package:space_game/game/stage/generation/stage_generator.dart';
 
 class StageSetupSystem extends System {
   StageSetupSystem({super.priority, required this.assetManager});
@@ -32,12 +32,12 @@ class StageSetupSystem extends System {
     // TODO: generate config
     final stageConfig = StageConfig(stageSize: Vector2(10000, 10000));
 
-    await generateStage(
+    await StageGenerator(
       commands: commands,
       assetManager: assetManager,
       stageConfig: stageConfig,
       stage: stage,
-    );
+    ).generate();
 
     setupState.status = .ready;
   }

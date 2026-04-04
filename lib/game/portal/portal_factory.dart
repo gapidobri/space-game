@@ -2,9 +2,12 @@ import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
+import 'package:space_game/game/portal/portal_spawn_spec.dart';
 import 'package:space_game/game/portal/portal_tag.dart';
 
-Entity createPortal({required Vector2 position, Entity? parent}) {
+Entity createPortal(PortalSpawnSpec spec) {
+  final PortalSpawnSpec(:position, :parent) = spec;
+
   final entity = Entity();
 
   // identity

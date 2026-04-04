@@ -12,9 +12,5 @@ Future<void> bootstrapGame(GameSession session) async {
 
   engine.addEntity(createRun());
 
-  // final levelConfig = LevelConfig(planetCount: 7);
-
-  // await generateLevel(session: session, levelConfig: levelConfig);
-
   registerGameSystems(session: session);
 }
