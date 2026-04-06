@@ -26,6 +26,10 @@ class StageTransitionSystem extends System {
       return;
     }
 
+    _transitionPlayer(world, stage);
+  }
+
+  void _transitionPlayer(World world, Entity stage) {
     final rocket = world.query<RocketTag>().firstOrNull;
     if (rocket == null) return;
 

@@ -10,16 +10,16 @@ class PlanetSpawnSpec {
     required this.position,
     required this.radius,
     required this.mass,
+    this.canHostAstronaut = false,
     this.atmosphere,
-    this.parent,
   });
 
   final Image image;
   final Vector2 position;
   final double radius;
   final double mass;
+  final bool canHostAstronaut;
   final AtmosphereConfig? atmosphere;
-  final Entity? parent;
 
   SpawnFootprint get footprint =>
       SpawnFootprint(position: position, radius: radius);

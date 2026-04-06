@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/run/components/current_stage.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
+import 'package:space_game/game/stage/generation/objective_generator.dart';
+import 'package:space_game/game/stage/generation/stage_spawner.dart';
 import 'package:space_game/game/stage/stage_config.dart';
 import 'package:space_game/game/stage/stage_factory.dart';
 import 'package:space_game/game/stage/generation/stage_generator.dart';
@@ -22,7 +26,7 @@ class StageSetupSystem extends System {
     final currentStage = run.get<CurrentStage>().stage;
     if (currentStage != null) return;
 
-    final stage = createStage(requiredTeleporterParts: 3, parent: run);
+    final stage = createStage(parent: run);
     commands.spawn(stage);
     run.get<CurrentStage>().stage = stage;
 
@@ -30,14 +34,33 @@ class StageSetupSystem extends System {
 
     setupState.status = .generating;
     // TODO: generate config
-    final stageConfig = StageConfig(stageSize: Vector2(10000, 10000));
+    final stageConfig = StageConfig(
+      stageSize: Vector2(10000, 10000),
+      objectiveCount: 2,
+    );
 
-    await StageGenerator(
-      commands: commands,
+    final random = Random();
+
+    final blueprint = await StageGenerator(
       assetManager: assetManager,
       stageConfig: stageConfig,
       stage: stage,
+      random: random,
     ).generate();
+
+    await ObjectiveGenerator(
+      assetManager: assetManager,
+      config: stageConfig,
+      blueprint: blueprint,
+      random: random,
+    ).generate();
+
+    await StageSpawner(
+      commands: commands,
+      assetManager: assetManager,
+      blueprint: blueprint,
+      stage: stage,
+    ).spawn();
 
     setupState.status = .ready;
   }

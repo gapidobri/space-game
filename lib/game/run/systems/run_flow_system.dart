@@ -4,6 +4,7 @@ import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/run/events/run_phase_changed_event.dart';
 import 'package:space_game/game/run/run_tag.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
+import 'package:space_game/game/stage/components/stage_state.dart';
 import 'package:space_game/game/stage/components/stage_transition_state.dart';
 
 class RunFlowSystem extends System {
@@ -37,7 +38,9 @@ class RunFlowSystem extends System {
 
       case .stagePlay: // -> stageExit, runFailed
         // normal gameplay
-        // TODO: wait for exit conditions
+        if (stage?.get<StageState>().phase == .leaving) {
+          _changePhase(runState, .stageExit);
+        }
         break;
 
       case .stageExit: // -> stageTransition

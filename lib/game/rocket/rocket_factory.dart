@@ -31,7 +31,7 @@ Entity createRocket({required Image image}) {
   entity.add(
     RocketPilot(thrustForce: 500, rotationForce: 1000, boostMultiplier: 2),
   );
-  entity.add(FuelTank(maxFuel: 100, fuel: 100));
+  entity.add(FuelTank(maxFuel: 500, fuel: 500));
   entity.add(RocketLocationStore(location: RocketLocationInSpace()));
   entity.add(Eva(maxInteractionRange: 100));
   entity.add(Health(maxHealth: 100));

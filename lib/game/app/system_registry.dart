@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
 import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/objective/systems/objective_system.dart';
+import 'package:space_game/game/portal/portal_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
 import 'package:space_game/game/shared/damage/damage_system.dart';
 import 'package:space_game/game/app/game_session.dart';
@@ -18,6 +21,7 @@ import 'package:space_game/game/rocket/rescue/astronaut_rescue_system.dart';
 import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
 import 'package:space_game/game/stage/systems/stage_cleanup_system.dart';
+import 'package:space_game/game/stage/systems/stage_flow_system.dart';
 import 'package:space_game/game/stage/systems/stage_setup_system.dart';
 import 'package:space_game/game/stage/systems/stage_transition_system.dart';
 
@@ -54,7 +58,8 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(StageSetupSystem(assetManager: assetManager));
   engine.addSystem(StageTransitionSystem(cameraState: cameraState));
   engine.addSystem(StageCleanupSystem());
-  engine.addSystem(ObjectiveSystem());
+  engine.addSystem(ObjectiveSystem(eventBus: engine.eventBus));
+  engine.addSystem(StageFlowSystem(eventBus: engine.eventBus));
 
   // gameplay resolution
   engine.addSystem(AstronautSystem());
@@ -66,6 +71,7 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(InteractionSystem(eventBus: engine.eventBus));
   engine.addSystem(AstronautRescueSystem(eventBus: engine.eventBus));
   engine.addSystem(MiningSystem(eventBus: engine.eventBus));
+  engine.addSystem(PortalSystem(eventBus: engine.eventBus));
 
   // presentation
   engine.addSystem(InteractionIndicatorSystem());

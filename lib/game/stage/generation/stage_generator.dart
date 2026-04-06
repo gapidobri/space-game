@@ -1,19 +1,12 @@
-import 'dart:math' as math;
-import 'dart:ui';
+import 'dart:math';
 
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/asteroid/asteroid_factory.dart';
 import 'package:space_game/game/asteroid/asteroid_spawn_spec.dart';
-import 'package:space_game/game/background/background_factory.dart';
-import 'package:space_game/game/planet/planet_factory.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
-import 'package:space_game/game/portal/portal_factory.dart';
 import 'package:space_game/game/portal/portal_spawn_spec.dart';
-import 'package:space_game/game/stage/components/stage_spawn_point.dart';
-import 'package:space_game/game/stage/generation/spawn_footprint.dart';
+import 'package:space_game/game/stage/generation/stage_spawnpoint_spec.dart';
 import 'package:space_game/game/stage/stage_blueprint.dart';
 import 'package:space_game/game/stage/stage_config.dart';
-import 'package:space_game/game/utils.dart';
 
 const playerSpawnPadding = 500.0;
 const minPlayerDistance = 200.0;
@@ -22,21 +15,20 @@ const minPlanetDistance = 500.0;
 
 class StageGenerator {
   StageGenerator({
-    required this.commands,
     required this.assetManager,
     required this.stageConfig,
     required this.stage,
+    required this.random,
   });
 
-  final Commands commands;
   final AssetManager assetManager;
   final StageConfig stageConfig;
   final Entity stage;
+  final Random random;
 
-  final random = math.Random();
   final blueprint = StageBlueprint();
 
-  Future<void> generate() async {
+  Future<StageBlueprint> generate() async {
     final StageConfig(:stageSize) = stageConfig;
 
     // player
@@ -46,46 +38,36 @@ class StageGenerator {
       (stageSize.y - 2 * playerSpawnPadding) * random.nextDouble() +
           playerSpawnPadding,
     );
-    commands.addComponent(
-      stage,
-      StageSpawnPoint(playerPosition: playerSpawnPosition),
-    );
-    blueprint.player = SpawnFootprint(
+    blueprint.spawnPoint = StageSpawnpointSpec(
       position: playerSpawnPosition,
-      radius: minPlanetDistance,
+      spawnAreaRadius: minPlanetDistance,
     );
-
-    _spawnStageBordersDebug(stageSize);
 
     // regions
     final leftBottomDistance = stageSize - playerSpawnPosition;
-    final maxEdgeDistance = math.max(
-      math.max(playerSpawnPosition.x, leftBottomDistance.x),
-      math.max(playerSpawnPosition.y, leftBottomDistance.y),
+    final maxEdgeDistance = max(
+      max(playerSpawnPosition.x, leftBottomDistance.x),
+      max(playerSpawnPosition.y, leftBottomDistance.y),
     );
 
     final regionFractions = [0, 0.25, 0.5, 0.75, 1.0];
     final regionDistances = regionFractions
         .map((f) => maxEdgeDistance * f)
         .toList();
-    _spawnRegionDebug(playerSpawnPosition, regionDistances);
 
     // portal
     late Vector2 portalSpawnPosition;
     do {
-      final portalSpawnAngle = 2 * math.pi * random.nextDouble();
+      final portalSpawnAngle = 2 * pi * random.nextDouble();
       final portalSpawnVector = Vector2(
-        math.cos(portalSpawnAngle),
-        math.sin(portalSpawnAngle),
+        cos(portalSpawnAngle),
+        sin(portalSpawnAngle),
       ).normalized();
       portalSpawnPosition =
           playerSpawnPosition + portalSpawnVector * portalSpawnDistance;
     } while (!stageSize.toRect().contains(portalSpawnPosition.toOffset()));
 
-    blueprint.portal = PortalSpawnSpec(
-      position: portalSpawnPosition,
-      parent: stage,
-    );
+    blueprint.portal = PortalSpawnSpec(position: portalSpawnPosition);
 
     // planets
     for (int i = 0; i < regionDistances.length - 1; i++) {
@@ -109,7 +91,7 @@ class StageGenerator {
             radius: 300,
             mass: 6e16,
             position: position,
-            parent: stage,
+            canHostAstronaut: true, // TODO: check planet type
           ),
         );
       }
@@ -134,41 +116,14 @@ class StageGenerator {
           AsteroidSpawnSpec(
             image: asteroidsImage,
             position: position,
-            rotation: random.nextDouble() * 2 * math.pi,
+            rotation: random.nextDouble() * 2 * pi,
             variant: random.nextInt(9),
-            parent: stage,
           ),
         );
       }
     }
 
-    // background
-    commands.spawn(
-      createBackground(
-        image: await assetManager.loadImage(
-          'assets/background/background_dust.png',
-        ),
-        parallax: 0.9,
-        parent: stage,
-      ),
-    );
-    commands.spawn(
-      createBackground(
-        image: await assetManager.loadImage(
-          'assets/background/background_stars.png',
-        ),
-        parallax: 0.9,
-        parent: stage,
-      ),
-    );
-
-    commands.spawn(createPortal(blueprint.portal));
-    for (final spec in blueprint.planets) {
-      commands.spawn(createPlanet(spec));
-    }
-    for (final spec in blueprint.asteroids) {
-      commands.spawn(createAsteroid(spec));
-    }
+    return blueprint;
   }
 
   Vector2? _getRandomPosition({
@@ -180,8 +135,8 @@ class StageGenerator {
     int count = 0;
     late Vector2 position;
     do {
-      final angle = 2 * math.pi * random.nextDouble();
-      final vector = Vector2(math.cos(angle), math.sin(angle));
+      final angle = 2 * pi * random.nextDouble();
+      final vector = Vector2(cos(angle), sin(angle));
       final distance = (max - min) * random.nextDouble() + min;
       position = center + vector * distance;
       count++;
@@ -189,47 +144,11 @@ class StageGenerator {
         return null;
       }
     } while (!stageConfig.stageSize.toRect().contains(position.toOffset()) ||
-        blueprint.occupied.containsWhere(
+        blueprint.occupied.any(
           (footprint) =>
               footprint.position.distanceTo(position) <
               footprint.radius + radius + minPlanetDistance,
         ));
     return position;
-  }
-
-  void _spawnStageBordersDebug(final Vector2 stageSize) {
-    commands.spawn(
-      Entity()
-        ..add(Transform())
-        ..add(
-          RectangleShape(
-            size: stageSize.toSize(),
-            paint: Paint()
-              ..color = Color(0xffff0000)
-              ..style = .stroke
-              ..strokeWidth = 10.0,
-          ),
-        )
-        ..add(Parent(parent: stage)),
-    );
-  }
-
-  void _spawnRegionDebug(final Vector2 center, final List<double> distances) {
-    for (final distance in distances) {
-      commands.spawn(
-        Entity()
-          ..add(Transform(position: center))
-          ..add(
-            CircleShape(
-              radius: distance,
-              paint: Paint()
-                ..color = Color(0xffff0000)
-                ..style = .stroke
-                ..strokeWidth = 10.0,
-            ),
-          )
-          ..add(Parent(parent: stage)),
-      );
-    }
   }
 }

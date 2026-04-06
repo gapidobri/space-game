@@ -1,6 +1,7 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/astronaut/astronaut_tag.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
+import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
 import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/planet/occupancy/planet_occupant.dart';
 
@@ -30,6 +31,12 @@ class AstronautSystem extends System {
               PlanetOccupant(planet: planet, angle: angle),
             );
           }
+          if (!astronaut.has<OffscreenIndicator>()) {
+            commands.addComponent<OffscreenIndicator>(
+              astronaut,
+              OffscreenIndicator(),
+            );
+          }
           break;
 
         case AstronautLocationInRocket():
@@ -39,6 +46,9 @@ class AstronautSystem extends System {
           }
           if (astronaut.has<PlanetOccupant>()) {
             commands.removeComponent<PlanetOccupant>(astronaut);
+          }
+          if (astronaut.has<OffscreenIndicator>()) {
+            commands.removeComponent<OffscreenIndicator>(astronaut);
           }
           break;
       }

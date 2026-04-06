@@ -6,15 +6,8 @@ import 'package:space_game/game/shared/damage/damage_dealer.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
 import 'package:space_game/game/planet/planet_tag.dart';
 
-Entity createPlanet(PlanetSpawnSpec spec) {
-  final PlanetSpawnSpec(
-    :image,
-    :position,
-    :mass,
-    :radius,
-    :atmosphere,
-    :parent,
-  ) = spec;
+Entity createPlanet({required PlanetSpawnSpec spec, Entity? parent}) {
+  final PlanetSpawnSpec(:image, :position, :mass, :radius, :atmosphere) = spec;
 
   final entity = Entity();
 

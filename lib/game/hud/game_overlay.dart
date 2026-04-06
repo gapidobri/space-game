@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/hud/hud_data.dart';
 import 'package:space_game/game/interaction/interaction_attempt_event.dart';
 import 'package:space_game/game/rocket/rescue/rescue_attempt_event.dart';
 
@@ -10,7 +11,7 @@ class GameOverlay extends StatelessWidget {
     required this.eventBus,
   });
 
-  final HudStateStore hudStateStore;
+  final HudStateStore<HudData> hudStateStore;
   final EventBus eventBus;
 
   @override
@@ -24,13 +25,32 @@ class GameOverlay extends StatelessWidget {
             color: Colors.black,
             child: ValueListenableBuilder(
               valueListenable: hudStateStore,
-              builder: (context, state, _) => Text(
-                [
-                  'Fuel: ${state.fuel.toInt()}/${state.maxFuel.toInt()}',
-                  'Health: ${state.health.toInt()}/${state.maxHealth.toInt()}',
-                  'Rocket Location: ${state.rocketLocation.runtimeType}',
-                ].join('\n'),
-                style: TextStyle(color: Colors.white),
+              builder: (context, state, _) => Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    [
+                      'Fuel: ${state.fuel.toInt()}/${state.maxFuel.toInt()}',
+                      'Health: ${state.health.toInt()}/${state.maxHealth.toInt()}',
+                      'Rocket Location: ${state.rocketLocation.runtimeType}',
+                      'Run Phase: ${state.runPhase}',
+                      'Stage Phase: ${state.stagePhase} ',
+                    ].join('\n'),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text('Objectives:', style: TextStyle(color: Colors.white)),
+                  for (final objective in state.objectives)
+                    Text(
+                      objective.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        decoration: objective.completed
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

@@ -3,9 +3,8 @@ import 'dart:ui';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/asteroid/asteroid_spawn_spec.dart';
 
-Entity createAsteroid(AsteroidSpawnSpec spec) {
-  final AsteroidSpawnSpec(:position, :rotation, :image, :variant, :parent) =
-      spec;
+Entity createAsteroid({required AsteroidSpawnSpec spec, Entity? parent}) {
+  final AsteroidSpawnSpec(:position, :rotation, :image, :variant) = spec;
 
   final entity = Entity();
 
