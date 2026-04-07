@@ -12,6 +12,8 @@ import 'package:space_game/game/rocket/rocket_tag.dart';
 import 'package:space_game/game/stage/components/stage_state.dart';
 
 HudData projectHudData(World world) {
+  final runState = world.tryGetComponent<RunState>();
+
   final rocket = world.query<RocketTag>().first;
   final fuelTank = rocket.get<FuelTank>();
   final health = rocket.get<Health>();
@@ -20,6 +22,11 @@ HudData projectHudData(World world) {
   final objectives = world.query<Objective>().map((o) => o.get<Objective>());
 
   return HudData(
+    loading: <RunPhase>{
+      .stageEnter,
+      .stageExit,
+      .stageTransition,
+    }.contains(runState?.phase),
     maxFuel: fuelTank.maxFuel,
     fuel: fuelTank.fuel,
     maxHealth: health.maxHealth,

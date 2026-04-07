@@ -5,6 +5,7 @@ import 'package:space_game/game/stage/components/stage_state.dart';
 
 class HudData {
   const HudData({
+    this.loading = false,
     this.maxFuel = 0,
     this.fuel = 0,
     this.maxHealth = 0,
@@ -16,6 +17,8 @@ class HudData {
     this.runPhase,
     this.stagePhase,
   });
+
+  final bool loading;
 
   final double maxFuel;
   final double fuel;

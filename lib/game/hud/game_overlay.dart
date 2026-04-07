@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/hud/hud_data.dart';
+import 'package:space_game/game/hud/loading_screen.dart';
 import 'package:space_game/game/interaction/interaction_attempt_event.dart';
 import 'package:space_game/game/rocket/rescue/rescue_attempt_event.dart';
 
@@ -16,16 +17,16 @@ class GameOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          top: 16,
-          left: 16,
-          child: Material(
-            color: Colors.black,
-            child: ValueListenableBuilder(
-              valueListenable: hudStateStore,
-              builder: (context, state, _) => Column(
+    return ValueListenableBuilder(
+      valueListenable: hudStateStore,
+      builder: (context, state, _) => Stack(
+        children: [
+          Positioned(
+            top: 16,
+            left: 16,
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -54,14 +55,11 @@ class GameOverlay extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: ValueListenableBuilder(
-              valueListenable: hudStateStore,
-              builder: (context, state, _) => Row(
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 4.0,
                 children: [
@@ -83,8 +81,9 @@ class GameOverlay extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ],
+          if (state.loading) LoadingScreen(),
+        ],
+      ),
     );
   }
 }

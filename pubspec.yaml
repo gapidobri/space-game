@@ -14,6 +14,7 @@ dependencies:
     path: packages/gamengine
   cupertino_icons: ^1.0.8
   collection: ^1.19.1
+  go_router: ^17.2.0
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +28,8 @@ flutter:
     - assets/
     - assets/planets/
     - assets/background/
+
+  fonts:
+    - family: Doto
+      fonts:
+        - asset: assets/fonts/Doto.ttf
