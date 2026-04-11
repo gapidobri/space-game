@@ -22,11 +22,14 @@ HudData projectHudData(World world) {
   final objectives = world.query<Objective>().map((o) => o.get<Objective>());
 
   return HudData(
-    loading: <RunPhase>{
-      .stageEnter,
-      .stageExit,
-      .stageTransition,
-    }.contains(runState?.phase),
+    loading:
+        runState == null ||
+        <RunPhase>{
+          .runStart,
+          .stageEnter,
+          .stageExit,
+          .stageTransition,
+        }.contains(runState.phase),
     maxFuel: fuelTank.maxFuel,
     fuel: fuelTank.fuel,
     maxHealth: health.maxHealth,

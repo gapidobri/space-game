@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
 import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/objective/systems/objective_system.dart';
+import 'package:space_game/game/particle_system/particle_system.dart';
 import 'package:space_game/game/portal/portal_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
 import 'package:space_game/game/shared/damage/damage_system.dart';
@@ -52,6 +51,7 @@ void registerGameSystems({required GameSession session}) {
   // physics
   engine.addSystem(PhysicsSystem());
   engine.addSystem(CollisionSystem(eventBus: engine.eventBus));
+  engine.addSystem(ParticleSystem());
 
   // run
   engine.addSystem(RunFlowSystem(eventBus: engine.eventBus));
@@ -66,6 +66,7 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(LandingAssistanceSystem(eventBus: engine.eventBus));
   engine.addSystem(DamageSystem(eventBus: engine.eventBus));
   engine.addSystem(PlanetOccupancySystem());
+  engine.addSystem(TransformHierarchySystem());
 
   // interaction
   engine.addSystem(InteractionSystem(eventBus: engine.eventBus));

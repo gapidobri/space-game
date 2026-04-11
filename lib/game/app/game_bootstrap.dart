@@ -6,9 +6,11 @@ import 'package:space_game/game/run/run_factory.dart';
 Future<void> bootstrapGame(GameSession session) async {
   final GameSession(:engine, :assetManager) = session;
 
-  engine.addEntity(
-    createRocket(image: await assetManager.loadImage('assets/atlas.png')),
+  final rocket = createRocket(
+    image: await assetManager.loadImage('assets/atlas.png'),
   );
+  engine.addEntity(rocket);
+  engine.addEntity(createRocketParticleEmitter(rocket: rocket));
 
   engine.addEntity(createRun());
 

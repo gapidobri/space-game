@@ -5,7 +5,7 @@ import 'package:space_game/game/stage/components/stage_state.dart';
 
 class HudData {
   const HudData({
-    this.loading = false,
+    this.loading = true,
     this.maxFuel = 0,
     this.fuel = 0,
     this.maxHealth = 0,

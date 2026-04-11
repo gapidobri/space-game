@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/particle_system/particle_emitter.dart';
 import 'package:space_game/game/shared/input/input.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
@@ -23,10 +25,14 @@ class RocketControlSystem extends System {
       final pilot = rocket.get<RocketPilot>();
       final fuelTank = rocket.get<FuelTank>();
       final rocketLocation = rocket.get<RocketLocationStore>();
+      final emitter = _getParticleEmitter(world, rocket);
 
       if (fuelTank.fuel <= 0) {
+        emitter?.enabled = false;
         continue;
       }
+
+      emitter?.enabled = thrustInput;
 
       if (thrustInput) {
         rocketLocation.location = RocketLocationInSpace();
@@ -53,4 +59,9 @@ class RocketControlSystem extends System {
       fuelTank.fuel -= 0.01 * thrust * dt;
     }
   }
+
+  ParticleEmitter? _getParticleEmitter(World world, Entity rocket) => world
+      .query2<Parent, ParticleEmitter>()
+      .firstWhereOrNull((e) => e.get<Parent>().parent == rocket)
+      ?.get<ParticleEmitter>();
 }
