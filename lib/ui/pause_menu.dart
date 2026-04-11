@@ -31,7 +31,10 @@ class PauseMenu extends StatelessWidget {
               spacing: 16.0,
               children: [
                 Button(text: 'Resume', onClick: onResume),
-                Button(text: 'Settings', onClick: () {}),
+                Button(
+                  text: 'Settings',
+                  onClick: () => context.push('/settings'),
+                ),
                 Button(text: 'Leave', onClick: () => context.go('/')),
               ],
             ),

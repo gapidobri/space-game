@@ -20,9 +20,9 @@ class ObjectiveGenerator {
   final Random random;
 
   Future<void> generate() async {
-    // for (int i = 0; i < config.objectiveCount; i++) {
-    //   await _generateRescueObjective();
-    // }
+    for (int i = 0; i < config.objectiveCount; i++) {
+      await _generateRescueObjective();
+    }
   }
 
   Future<void> _generateRescueObjective() async {

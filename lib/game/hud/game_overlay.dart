@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/hud/failure_screen.dart';
 import 'package:space_game/game/hud/hud_data.dart';
 import 'package:space_game/game/hud/loading_screen.dart';
 import 'package:space_game/game/interaction/interaction_attempt_event.dart';
@@ -10,10 +11,12 @@ class GameOverlay extends StatelessWidget {
     super.key,
     required this.hudStateStore,
     required this.eventBus,
+    required this.onReset,
   });
 
   final HudStateStore<HudData> hudStateStore;
   final EventBus eventBus;
+  final void Function() onReset;
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +85,7 @@ class GameOverlay extends StatelessWidget {
                 ),
               ),
             ),
+            if (state.runPhase == .runFailed) FailureScreen(onReset: onReset),
             if (state.loading) LoadingScreen(),
           ],
         );

@@ -14,11 +14,11 @@ import 'package:space_game/game/stage/components/stage_state.dart';
 HudData projectHudData(World world) {
   final runState = world.tryGetComponent<RunState>();
 
-  final rocket = world.query<RocketTag>().first;
-  final fuelTank = rocket.get<FuelTank>();
-  final health = rocket.get<Health>();
-  final rocketLocationStore = rocket.get<RocketLocationStore>();
-  final eva = rocket.get<Eva>();
+  final rocket = world.query<RocketTag>().firstOrNull;
+  final fuelTank = rocket?.get<FuelTank>();
+  final health = rocket?.get<Health>();
+  final rocketLocationStore = rocket?.get<RocketLocationStore>();
+  final eva = rocket?.get<Eva>();
   final objectives = world.query<Objective>().map((o) => o.get<Objective>());
 
   return HudData(
@@ -30,13 +30,14 @@ HudData projectHudData(World world) {
           .stageExit,
           .stageTransition,
         }.contains(runState.phase),
-    maxFuel: fuelTank.maxFuel,
-    fuel: fuelTank.fuel,
-    maxHealth: health.maxHealth,
-    health: health.currentHealth,
-    rocketLocation: rocketLocationStore.location,
-    canRescue: eva.interactables.any((e) => e.has<AstronautTag>()),
-    minables: eva.interactables.where((e) => e.has<ResourceNode>()).toList(),
+    maxFuel: fuelTank?.maxFuel ?? 0,
+    fuel: fuelTank?.fuel ?? 0,
+    maxHealth: health?.maxHealth ?? 0,
+    health: health?.currentHealth ?? 0,
+    rocketLocation: rocketLocationStore?.location,
+    canRescue: eva?.interactables.any((e) => e.has<AstronautTag>()) ?? false,
+    minables:
+        eva?.interactables.where((e) => e.has<ResourceNode>()).toList() ?? [],
     objectives: objectives
         .map(
           (o) => ObjectiveData(

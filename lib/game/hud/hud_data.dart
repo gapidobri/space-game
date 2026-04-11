@@ -10,7 +10,7 @@ class HudData {
     this.fuel = 0,
     this.maxHealth = 0,
     this.health = 0,
-    this.rocketLocation = const RocketLocationInSpace(),
+    this.rocketLocation,
     this.canRescue = false,
     this.minables = const [],
     this.objectives = const [],
@@ -26,7 +26,7 @@ class HudData {
   final double maxHealth;
   final double health;
 
-  final RocketLocation rocketLocation;
+  final RocketLocation? rocketLocation;
 
   final bool canRescue;
   final List<Entity> minables;

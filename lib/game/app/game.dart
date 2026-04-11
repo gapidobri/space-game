@@ -15,16 +15,21 @@ class SpaceGame extends StatefulWidget {
 }
 
 class _SpaceGameState extends State<SpaceGame> {
-  late final GameSession _session;
+  late GameSession _session;
 
   bool _paused = false;
 
   @override
   void initState() {
     super.initState();
+    _setupGame();
+  }
 
-    _session = createGameSession();
-    bootstrapGame(_session);
+  void _setupGame() {
+    setState(() {
+      _session = createGameSession();
+      bootstrapGame(_session);
+    });
   }
 
   @override
@@ -45,6 +50,7 @@ class _SpaceGameState extends State<SpaceGame> {
         GameOverlay(
           hudStateStore: _session.hudStateStore,
           eventBus: _session.engine.eventBus,
+          onReset: _setupGame,
         ),
         Padding(
           padding: const EdgeInsets.only(top: 16.0),

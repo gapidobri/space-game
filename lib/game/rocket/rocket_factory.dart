@@ -31,7 +31,7 @@ Entity createRocket({required Image image}) {
 
   // rendering
   entity.add(
-    Sprite(image: image, sourceRect: Rect.fromLTWH(0, 50, 50, 50), z: 20),
+    Sprite(image: image, sourceRect: Rect.fromLTWH(0, 50, 50, 50), z: 30),
   );
 
   // gameplay

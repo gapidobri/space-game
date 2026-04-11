@@ -27,7 +27,7 @@ class MainMenu extends StatelessWidget {
           spacing: 16.0,
           children: [
             Button(text: 'New Game', onClick: () => context.go('/game')),
-            Button(text: 'Settings', onClick: () => context.go('/settings')),
+            Button(text: 'Settings', onClick: () => context.push('/settings')),
             Button(text: 'Exit', onClick: () => SystemNavigator.pop()),
           ],
         ),

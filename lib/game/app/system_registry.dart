@@ -5,6 +5,7 @@ import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/objective/systems/objective_system.dart';
 import 'package:space_game/game/particle_system/particle_system.dart';
 import 'package:space_game/game/portal/portal_system.dart';
+import 'package:space_game/game/rocket/systems/rocket_destruction_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
 import 'package:space_game/game/shared/damage/damage_system.dart';
 import 'package:space_game/game/app/game_session.dart';
@@ -65,6 +66,7 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(AstronautSystem());
   engine.addSystem(LandingAssistanceSystem(eventBus: engine.eventBus));
   engine.addSystem(DamageSystem(eventBus: engine.eventBus));
+  engine.addSystem(RocketDestructionSystem(eventBus: engine.eventBus));
   engine.addSystem(PlanetOccupancySystem());
   engine.addSystem(TransformHierarchySystem());
 

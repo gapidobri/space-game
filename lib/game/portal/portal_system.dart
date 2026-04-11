@@ -27,9 +27,12 @@ class PortalSystem extends System {
       state.status = .activated;
     }
 
-    for (final event in eventBus.read<CollisionEvent>()) {
-      if (event.entities.contains(rocket) && event.entities.contains(portal)) {
-        state.status = .teleporting;
+    if (state.status == .activated) {
+      for (final event in eventBus.read<CollisionEvent>()) {
+        if (event.entities.contains(rocket) &&
+            event.entities.contains(portal)) {
+          state.status = .teleporting;
+        }
       }
     }
 

@@ -1,4 +1,5 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/rocket/events/rocket_destroyed_event.dart';
 import 'package:space_game/game/run/components/current_stage.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/run/events/run_phase_changed_event.dart';
@@ -40,6 +41,11 @@ class RunFlowSystem extends System {
         // normal gameplay
         if (stage?.get<StageState>().phase == .leaving) {
           _changePhase(runState, .stageExit);
+          break;
+        }
+        if (eventBus.read<RocketDestroyedEvent>().isNotEmpty) {
+          _changePhase(runState, .runFailed);
+          break;
         }
         break;
 

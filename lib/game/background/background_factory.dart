@@ -18,7 +18,7 @@ Entity createBackground({
     TiledSprite(
       image: image,
       tileSize: Size(image.width.toDouble(), image.height.toDouble()),
-      areaSize: const Size(4096, 4096),
+      extendInfinitely: true,
       z: -500,
     ),
   );

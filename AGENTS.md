@@ -5,7 +5,6 @@
 - Prefer composition over inheritance.
 - Keep game logic in systems, data in components, and identity/lifecycle in entities.
 - Follow gdd.md for game design and feature priorities.
-- You are only allowed to edit the code inside ./packages/gamengine folder unless instructed otherwise.
 
 ## ECS Rules
 - Entities: lightweight IDs, no game logic.

@@ -22,7 +22,7 @@ class SettingsMenu extends StatelessWidget {
         ),
         SizedBox(height: 128.0),
         // TODO: music volume, sfx volume
-        Button(text: 'Back', onClick: () => context.go('/')),
+        Button(text: 'Back', onClick: () => context.pop()),
       ],
     );
   }
