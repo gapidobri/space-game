@@ -17,7 +17,11 @@ class OffscreenIndicatorRenderPass extends RenderPass {
     final edgeRect = viewRect.deflate(24.0);
 
     for (final entity in world.query2<Transform, OffscreenIndicator>()) {
+      final indicator = entity.get<OffscreenIndicator>();
+      if (!indicator.enabled) continue;
+
       final transform = entity.get<Transform>();
+
       final target = transform.position.toOffset();
 
       if (viewRect.contains(transform.position.toOffset())) {

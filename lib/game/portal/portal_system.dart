@@ -1,4 +1,5 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
 import 'package:space_game/game/portal/portal_state.dart';
 import 'package:space_game/game/portal/portal_tag.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
@@ -18,6 +19,7 @@ class PortalSystem extends System {
     if (portal == null) return;
 
     final state = portal.get<PortalState>();
+    final indicator = portal.get<OffscreenIndicator>();
 
     final stageState = world.tryGetComponent<StageState>();
     if (stageState == null) return;
@@ -33,5 +35,7 @@ class PortalSystem extends System {
         }
       }
     }
+
+    indicator.enabled = state.status != .closed;
   }
 }

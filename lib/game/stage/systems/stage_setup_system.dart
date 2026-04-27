@@ -36,7 +36,7 @@ class StageSetupSystem extends System {
     // TODO: generate config
     final stageConfig = StageConfig(
       stageSize: Vector2(10000, 10000),
-      objectiveCount: 2,
+      objectiveCount: 1,
     );
 
     final random = Random();

@@ -35,7 +35,7 @@ Entity createPortal({
   entity.add(CircleCollider(radius: 50));
 
   entity.add(PortalState());
-  entity.add(OffscreenIndicator());
+  entity.add(OffscreenIndicator(enabled: false));
 
   if (parent != null) {
     entity.add(Parent(parent: parent));
