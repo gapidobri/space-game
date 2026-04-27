@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/asteroid/asteroid_spawn_spec.dart';
+import 'package:space_game/game/entry_portal/entry_portal_spawn_spec.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
 import 'package:space_game/game/portal/portal_spawn_spec.dart';
 import 'package:space_game/game/stage/generation/stage_spawnpoint_spec.dart';
@@ -42,6 +43,7 @@ class StageGenerator {
       position: playerSpawnPosition,
       spawnAreaRadius: minPlanetDistance,
     );
+    blueprint.entryPortal = EntryPortalSpawnSpec(position: playerSpawnPosition);
 
     // regions
     final leftBottomDistance = stageSize - playerSpawnPosition;

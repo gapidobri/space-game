@@ -19,15 +19,15 @@ class RocketControlSystem extends System {
     final thrustInput = inputState.isPressed(.thrust);
     final boostInput = inputState.isPressed(.boost);
 
-    for (final rocket in world.query<RocketPilot>()) {
+    for (final rocket in world.query<RocketEngine>()) {
       final transform = rocket.get<Transform>();
       final rigidBody = rocket.get<RigidBody>();
-      final pilot = rocket.get<RocketPilot>();
+      final engine = rocket.get<RocketEngine>();
       final fuelTank = rocket.get<FuelTank>();
       final rocketLocation = rocket.get<RocketLocationStore>();
       final emitter = _getParticleEmitter(world, rocket);
 
-      if (fuelTank.fuel <= 0) {
+      if (!engine.enabled || fuelTank.fuel <= 0) {
         emitter?.enabled = false;
         continue;
       }
@@ -40,15 +40,15 @@ class RocketControlSystem extends System {
 
       double rotationForce = 0;
       if (turnLeft) {
-        rotationForce -= pilot.rotationForce;
+        rotationForce -= engine.rotationForce;
       }
       if (turnRight) {
-        rotationForce += pilot.rotationForce;
+        rotationForce += engine.rotationForce;
       }
       rigidBody.accumulatedTorque += rotationForce;
 
-      final boost = boostInput ? pilot.boostMultiplier : 1;
-      final thrust = thrustInput ? pilot.thrustForce * boost : 0;
+      final boost = boostInput ? engine.boostMultiplier : 1;
+      final thrust = thrustInput ? engine.thrustForce * boost : 0;
 
       final sinR = math.sin(transform.rotation);
       final cosR = math.cos(transform.rotation);

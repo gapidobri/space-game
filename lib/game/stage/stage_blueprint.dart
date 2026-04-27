@@ -1,5 +1,6 @@
 import 'package:space_game/game/asteroid/asteroid_spawn_spec.dart';
 import 'package:space_game/game/astronaut/astronaut_spawn_spec.dart';
+import 'package:space_game/game/entry_portal/entry_portal_spawn_spec.dart';
 import 'package:space_game/game/objective/objective_spawn_spec.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
 import 'package:space_game/game/portal/portal_spawn_spec.dart';
@@ -10,6 +11,7 @@ class StageBlueprint {
   StageBlueprint();
 
   late final StageSpawnpointSpec spawnPoint;
+  late final EntryPortalSpawnSpec entryPortal;
   late final PortalSpawnSpec portal;
   final List<PlanetSpawnSpec> planets = [];
   final List<AsteroidSpawnSpec> asteroids = [];

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:flutter/material.dart' hide Image;
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/hud/failure_screen.dart';
 import 'package:space_game/game/hud/hud_data.dart';
@@ -11,11 +13,13 @@ class GameOverlay extends StatelessWidget {
     super.key,
     required this.hudStateStore,
     required this.eventBus,
+    required this.bars,
     required this.onReset,
   });
 
   final HudStateStore<HudData> hudStateStore;
   final EventBus eventBus;
+  final Image bars;
   final void Function() onReset;
 
   @override
@@ -83,6 +87,15 @@ class GameOverlay extends StatelessWidget {
                       ),
                   ],
                 ),
+              ),
+            ),
+            Align(
+              alignment: .topRight,
+              child: SpriteWidget(
+                image: bars,
+                sourceRect: Rect.fromLTRB(121, 33, 142, 37),
+                width: state.fuel / 500 * 100,
+                height: 20,
               ),
             ),
             if (state.runPhase == .runFailed) FailureScreen(onReset: onReset),

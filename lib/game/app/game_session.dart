@@ -8,7 +8,10 @@ GameSession createGameSession() {
   return GameSession(
     engine: Engine(eventBus: eventBus),
     inputState: InputActionState<InputAction>(),
-    cameraState: CameraState(),
+    cameraState: CameraState(
+      targetViewportWidth: 1920,
+      targetViewportHeight: 1080,
+    ),
     renderQueue: RenderQueue(),
     assetManager: AssetManager(),
     hudStateStore: HudStateStore(HudData()),

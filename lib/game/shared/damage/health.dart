@@ -10,6 +10,7 @@ class Health extends Component {
   double _currentHealth;
 
   double get currentHealth => _currentHealth;
+  double get percentage => _currentHealth / maxHealth;
 
   set currentHealth(double value) =>
       _currentHealth = math.max(0, math.min(value, maxHealth));

@@ -47,10 +47,21 @@ class _SpaceGameState extends State<SpaceGame> {
             }
           },
         ),
-        GameOverlay(
-          hudStateStore: _session.hudStateStore,
-          eventBus: _session.engine.eventBus,
-          onReset: _setupGame,
+        FutureBuilder(
+          future: _session.assetManager.loadImage('assets/bars.png'),
+          builder: (context, snapshot) {
+            final bars = snapshot.data;
+            if (bars == null) {
+              return SizedBox.shrink();
+            }
+
+            return GameOverlay(
+              hudStateStore: _session.hudStateStore,
+              eventBus: _session.engine.eventBus,
+              bars: bars,
+              onReset: _setupGame,
+            );
+          },
         ),
         Padding(
           padding: const EdgeInsets.only(top: 16.0),

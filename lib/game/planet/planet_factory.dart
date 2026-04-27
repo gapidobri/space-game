@@ -15,7 +15,7 @@ Entity createPlanet({required PlanetSpawnSpec spec, Entity? parent}) {
   entity.add(PlanetTag());
 
   // physics
-  entity.add(Transform(position: position, scale: Vector2.all(3.0)));
+  entity.add(Transform(position: position, scale: Vector2.all(3)));
   entity.add(RigidBody(isStatic: true));
   entity.add(GravitySource(mass: mass));
   entity.add(

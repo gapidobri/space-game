@@ -26,8 +26,10 @@ flutter:
 
   assets:
     - assets/
+    - assets/rocket/
     - assets/planets/
     - assets/background/
+    - assets/portals/
 
   fonts:
     - family: Doto

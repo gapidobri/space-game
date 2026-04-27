@@ -34,13 +34,9 @@ class StageFlowSystem extends System {
 
         case .portalReady:
           final portalState = world.tryGetComponent<PortalState>();
-          if (portalState?.status == .teleporting) {
-            _changePhase(state, .portalActivating);
+          if (portalState?.status == .completed) {
+            _changePhase(state, .leaving);
           }
-          break;
-
-        case .portalActivating:
-          _changePhase(state, .leaving);
           break;
 
         case .leaving:

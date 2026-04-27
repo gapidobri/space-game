@@ -2,10 +2,13 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/systems/alien_movement_system.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
 import 'package:space_game/game/background/parallax_system.dart';
+import 'package:space_game/game/entry_portal/entry_portal_transition_system.dart';
 import 'package:space_game/game/objective/systems/objective_system.dart';
 import 'package:space_game/game/particle_system/particle_system.dart';
+import 'package:space_game/game/portal/exit_portal_transition_system.dart';
 import 'package:space_game/game/portal/portal_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_destruction_system.dart';
+import 'package:space_game/game/rocket/systems/rocket_visual_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
 import 'package:space_game/game/shared/damage/damage_system.dart';
 import 'package:space_game/game/app/game_session.dart';
@@ -69,6 +72,8 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(RocketDestructionSystem(eventBus: engine.eventBus));
   engine.addSystem(PlanetOccupancySystem());
   engine.addSystem(TransformHierarchySystem());
+  engine.addSystem(EntryPortalTransitionSystem());
+  engine.addSystem(ExitPortalTransitionSystem());
 
   // interaction
   engine.addSystem(InteractionSystem(eventBus: engine.eventBus));
@@ -84,6 +89,7 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(
     HudPresenterSystem(output: hudStateStore, project: projectHudData),
   );
+  engine.addSystem(RocketVisualSystem());
 
   // cleanup
   engine.addSystem(ParentSystem());

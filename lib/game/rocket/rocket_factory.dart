@@ -18,12 +18,12 @@ Entity createRocket({required Image image}) {
   entity.add(RocketTag());
 
   // physics
-  entity.add(Transform());
+  entity.add(Transform(scale: Vector2.all(2)));
   entity.add(RigidBody(mass: 10, momentOfInertia: 200));
   entity.add(
     RectangleCollider(
-      halfWidth: 10,
-      halfHeight: 20,
+      halfWidth: 26,
+      halfHeight: 26,
       restitution: 0.2,
       collisionLayer: rocketLayer,
     ),
@@ -31,12 +31,12 @@ Entity createRocket({required Image image}) {
 
   // rendering
   entity.add(
-    Sprite(image: image, sourceRect: Rect.fromLTWH(0, 50, 50, 50), z: 30),
+    Sprite(image: image, sourceRect: Rect.fromLTWH(0, 48, 48, 48), z: 30),
   );
 
   // gameplay
   entity.add(
-    RocketPilot(thrustForce: 500, rotationForce: 1000, boostMultiplier: 2),
+    RocketEngine(thrustForce: 500, rotationForce: 1000, boostMultiplier: 2),
   );
   entity.add(FuelTank(maxFuel: 500, fuel: 500));
   entity.add(RocketLocationStore(location: RocketLocationInSpace()));
@@ -46,6 +46,18 @@ Entity createRocket({required Image image}) {
 
   // ui
   entity.add(CameraFollowTarget());
+
+  return entity;
+}
+
+Entity createEngine({required Entity rocket, required Image image}) {
+  final entity = Entity();
+
+  entity.add(Sprite(image: image, sourceRect: Rect.fromLTWH(0, 0, 48, 48)));
+
+  entity.add(Transform(scale: Vector2.all(2)));
+  entity.add(Parent(parent: rocket));
+  entity.add(LocalTransform());
 
   return entity;
 }

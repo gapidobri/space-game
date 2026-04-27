@@ -6,6 +6,7 @@ import 'package:space_game/game/astronaut/astronaut_factory.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
 import 'package:space_game/game/astronaut/astronaut_spawn_spec.dart';
 import 'package:space_game/game/background/background_factory.dart';
+import 'package:space_game/game/entry_portal/entry_portal_factory.dart';
 import 'package:space_game/game/objective/objective_factory.dart';
 import 'package:space_game/game/planet/planet_factory.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
@@ -32,7 +33,21 @@ class StageSpawner {
   Future<void> spawn() async {
     stage.add(StageSpawnPoint(playerPosition: blueprint.spawnPoint.position));
 
-    commands.spawn(createPortal(spec: blueprint.portal, parent: stage));
+    commands.spawn(
+      createEntryPortal(
+        spec: blueprint.entryPortal,
+        image: await assetManager.loadImage('assets/portals/entry_portal.png'),
+        parent: stage,
+      ),
+    );
+
+    commands.spawn(
+      createPortal(
+        spec: blueprint.portal,
+        image: await assetManager.loadImage('assets/portals/exit_portal.png'),
+        parent: stage,
+      ),
+    );
 
     for (final spec in blueprint.planets) {
       final planet = createPlanet(spec: spec, parent: stage);
