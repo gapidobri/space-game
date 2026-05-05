@@ -5,10 +5,10 @@ import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
 
-class _InteractionIndicatorRef extends Component {
-  _InteractionIndicatorRef(this.identicator);
+class InteractionIndicatorRef extends Component {
+  InteractionIndicatorRef(this.indicator);
 
-  final Entity identicator;
+  final Entity indicator;
 }
 
 class InteractionIndicatorSystem extends System {
@@ -22,7 +22,7 @@ class InteractionIndicatorSystem extends System {
     final eva = rocket.get<Eva>();
 
     for (final entity in world.query<InteractionTarget>()) {
-      var idRef = entity.tryGet<_InteractionIndicatorRef>();
+      var idRef = entity.tryGet<InteractionIndicatorRef>();
 
       if (idRef == null) {
         final identicator = Entity();
@@ -39,13 +39,13 @@ class InteractionIndicatorSystem extends System {
           ),
         );
 
-        idRef = _InteractionIndicatorRef(identicator);
+        idRef = InteractionIndicatorRef(identicator);
         entity.add(idRef);
 
         commands.spawn(identicator);
       }
 
-      final identicator = idRef.identicator;
+      final identicator = idRef.indicator;
 
       final transform = entity.get<Transform>();
       final idTransform = identicator.get<Transform>();
@@ -57,12 +57,12 @@ class InteractionIndicatorSystem extends System {
     }
 
     // cleanup
-    for (final entity in world.query<_InteractionIndicatorRef>()) {
+    for (final entity in world.query<InteractionIndicatorRef>()) {
       if (entity.has<InteractionTarget>()) continue;
 
-      final ref = entity.get<_InteractionIndicatorRef>();
-      commands.removeComponent<_InteractionIndicatorRef>(entity);
-      commands.despawn(ref.identicator);
+      final ref = entity.get<InteractionIndicatorRef>();
+      commands.removeComponent<InteractionIndicatorRef>(entity);
+      commands.despawn(ref.indicator);
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:space_game/game/background/parallax.dart';
 import 'package:space_game/game/entry_portal/entry_portal_state.dart';
 import 'package:space_game/game/entry_portal/entry_portal_tag.dart';
 import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
+import 'package:space_game/game/interaction/interaction_indicator_system.dart';
 import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/mining/drill.dart';
 import 'package:space_game/game/mining/mineral_tag.dart';
@@ -59,6 +60,9 @@ void registerCodecs(WorldStateSerializer serializer) {
 
   // interaction
   serializer.registerCodec<InteractionTarget>(_InteractionTargetCodec());
+  serializer.registerCodec<InteractionIndicatorRef>(
+    _InteractionIndicatorRefCodec(),
+  );
 
   // mining
   serializer.registerCodec<Drill>(_DrillCodec());
@@ -232,6 +236,21 @@ class _InteractionTargetCodec extends ComponentCodec<InteractionTarget> {
 
   @override
   Map<String, Object?> encode(InteractionTarget component) => {};
+}
+
+class _InteractionIndicatorRefCodec
+    extends ComponentCodec<InteractionIndicatorRef> {
+  @override
+  String get typeId => 'interaction.indicatorRef';
+
+  @override
+  InteractionIndicatorRef decode(Map<String, Object?> data) =>
+      InteractionIndicatorRef(data['indicator'] as Entity);
+
+  @override
+  Map<String, Object?> encode(InteractionIndicatorRef component) => {
+    'indicator': component.indicator,
+  };
 }
 
 class _DrillCodec extends ComponentCodec<Drill> {
