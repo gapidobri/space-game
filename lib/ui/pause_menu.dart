@@ -3,9 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:space_game/ui/widgets/button.dart';
 
 class PauseMenu extends StatelessWidget {
-  const PauseMenu({super.key, required this.onResume});
+  const PauseMenu({super.key, required this.onResume, required this.onSave});
 
   final void Function() onResume;
+  final void Function() onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,7 @@ class PauseMenu extends StatelessWidget {
                   text: 'Settings',
                   onClick: () => context.push('/settings'),
                 ),
+                Button(text: 'Save', onClick: onSave),
                 Button(text: 'Leave', onClick: () => context.go('/')),
               ],
             ),

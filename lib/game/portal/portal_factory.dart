@@ -8,7 +8,7 @@ import 'package:space_game/game/portal/portal_tag.dart';
 
 Entity createPortal({
   required PortalSpawnSpec spec,
-  required Image image,
+  required Asset<Image> image,
   Entity? parent,
 }) {
   final PortalSpawnSpec(:position) = spec;

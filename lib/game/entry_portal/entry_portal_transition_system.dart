@@ -2,7 +2,7 @@ import 'package:flutter/animation.dart';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/entry_portal/entry_portal_state.dart';
 import 'package:space_game/game/entry_portal/entry_portal_tag.dart';
-import 'package:space_game/game/rocket/components/rocket_pilot.dart';
+import 'package:space_game/game/rocket/components/rocket_engine.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
 
 const _animationCurve = Curves.easeIn;

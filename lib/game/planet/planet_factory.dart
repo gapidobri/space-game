@@ -45,9 +45,9 @@ Entity createPlanet({required PlanetSpawnSpec spec, Entity? parent}) {
     entity.add(
       CircleShape(
         radius: atmosphere.radius,
-        paint: Paint()
+        paint: PaintConfig()
           ..color = atmosphere.color
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 100),
+          ..maskFilter = MaskFilterConfig.blur(BlurStyle.normal, 100),
       ),
     );
   }

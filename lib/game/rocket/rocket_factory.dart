@@ -8,10 +8,10 @@ import 'package:space_game/game/mining/drill.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
-import 'package:space_game/game/rocket/components/rocket_pilot.dart';
+import 'package:space_game/game/rocket/components/rocket_engine.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
 
-Entity createRocket({required Image image}) {
+Entity createRocket({required Asset<Image> image}) {
   final entity = Entity();
 
   // identity
@@ -50,7 +50,7 @@ Entity createRocket({required Image image}) {
   return entity;
 }
 
-Entity createEngine({required Entity rocket, required Image image}) {
+Entity createEngine({required Entity rocket, required Asset<Image> image}) {
   final entity = Entity();
 
   entity.add(Sprite(image: image, sourceRect: Rect.fromLTWH(0, 0, 48, 48)));

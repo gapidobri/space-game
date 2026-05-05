@@ -110,7 +110,7 @@ class StageSpawner {
         ..add(
           RectangleShape(
             size: stageSize.toSize(),
-            paint: Paint()
+            paint: PaintConfig()
               ..color = Color(0xffff0000)
               ..style = .stroke
               ..strokeWidth = 10.0,
@@ -128,7 +128,7 @@ class StageSpawner {
           ..add(
             CircleShape(
               radius: distance,
-              paint: Paint()
+              paint: PaintConfig()
                 ..color = Color(0xffff0000)
                 ..style = .stroke
                 ..strokeWidth = 10.0,

@@ -22,7 +22,7 @@ Entity createMineral({
 
   // rendering
   entity.add(
-    CircleShape(radius: 10, paint: Paint()..color = Color(0xFFFFFFFF)),
+    CircleShape(radius: 10, paint: PaintConfig()..color = Color(0xFFFFFFFF)),
   );
 
   // gameplay

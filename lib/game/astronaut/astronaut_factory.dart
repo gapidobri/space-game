@@ -6,7 +6,7 @@ import 'package:space_game/game/astronaut/astronaut_tag.dart';
 import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
 
 Entity createAstronaut({
-  required Image image,
+  required Asset<Image> image,
   required AstronautLocation location,
   Entity? parent,
 }) {

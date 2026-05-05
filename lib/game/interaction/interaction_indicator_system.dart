@@ -31,7 +31,7 @@ class InteractionIndicatorSystem extends System {
         identicator.add(
           CircleShape(
             radius: eva.maxInteractionRange,
-            paint: Paint()
+            paint: PaintConfig()
               ..color = Color.fromARGB(100, 100, 255, 100)
               ..style = PaintingStyle.stroke
               ..strokeWidth = 3.0,

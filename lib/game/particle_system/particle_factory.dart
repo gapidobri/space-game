@@ -32,7 +32,7 @@ Entity createParticle({
     RectangleShape(
       size: size,
       anchor: Offset(0.5, 0.5),
-      paint: Paint()..color = color,
+      paint: PaintConfig()..color = color,
     ),
   );
   entity.add(

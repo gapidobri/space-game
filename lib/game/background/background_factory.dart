@@ -4,7 +4,7 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/background/parallax.dart';
 
 Entity createBackground({
-  required Image image,
+  required Asset<Image> image,
   double parallax = 0,
   Entity? parent,
 }) {
@@ -17,7 +17,7 @@ Entity createBackground({
   entity.add(
     TiledSprite(
       image: image,
-      tileSize: Size(image.width.toDouble(), image.height.toDouble()),
+      tileSize: Size(image.data.width.toDouble(), image.data.height.toDouble()),
       extendInfinitely: true,
       z: -500,
     ),

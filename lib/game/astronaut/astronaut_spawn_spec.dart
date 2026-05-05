@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
 
 class AstronautSpawnSpec {
@@ -9,7 +10,7 @@ class AstronautSpawnSpec {
     required this.planetAngle,
   });
 
-  final Image image;
+  final Asset<Image> image;
   final PlanetSpawnSpec planet;
   final double planetAngle;
 }

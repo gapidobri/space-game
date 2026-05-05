@@ -13,7 +13,7 @@ class AsteroidSpawnSpec {
 
   final Vector2 position;
   final double rotation;
-  final Image image;
+  final Asset<Image> image;
   final int variant;
 
   SpawnFootprint get footprint =>

@@ -4,6 +4,7 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/app/game_bootstrap.dart';
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/hud/game_overlay.dart';
+import 'package:space_game/game/persistence/persistence.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/ui/pause_menu.dart';
 
@@ -80,7 +81,11 @@ class _SpaceGameState extends State<SpaceGame> {
             ),
           ),
         ),
-        if (_paused) PauseMenu(onResume: () => setState(() => _paused = false)),
+        if (_paused)
+          PauseMenu(
+            onResume: () => setState(() => _paused = false),
+            onSave: () => saveGame(_session),
+          ),
       ],
     );
   }

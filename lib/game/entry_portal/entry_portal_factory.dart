@@ -7,7 +7,7 @@ import 'package:space_game/game/entry_portal/entry_portal_tag.dart';
 
 Entity createEntryPortal({
   required EntryPortalSpawnSpec spec,
-  required Image image,
+  required Asset<Image> image,
   Entity? parent,
 }) {
   final entity = Entity();

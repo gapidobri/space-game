@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/alien_tag.dart';
 
-Entity createAlien({required Image image}) {
+Entity createAlien({required Asset<Image> image}) {
   final entity = Entity();
 
   // identity

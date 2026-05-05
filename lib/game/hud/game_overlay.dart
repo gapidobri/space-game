@@ -19,7 +19,7 @@ class GameOverlay extends StatelessWidget {
 
   final HudStateStore<HudData> hudStateStore;
   final EventBus eventBus;
-  final Image bars;
+  final Asset<Image> bars;
   final void Function() onReset;
 
   @override

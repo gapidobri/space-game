@@ -14,7 +14,7 @@ class PlanetSpawnSpec {
     this.atmosphere,
   });
 
-  final Image image;
+  final Asset<Image> image;
   final Vector2 position;
   final double radius;
   final double mass;
