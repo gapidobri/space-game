@@ -6,6 +6,8 @@ import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/hud/game_overlay.dart';
 import 'package:space_game/game/persistence/persistence.dart';
 import 'package:space_game/game/run/components/run_state.dart';
+import 'package:space_game/game/settings/audio_settings.dart';
+import 'package:space_game/settings.dart';
 import 'package:space_game/ui/pause_menu.dart';
 
 class SpaceGame extends StatefulWidget {
@@ -19,6 +21,7 @@ class SpaceGame extends StatefulWidget {
 
 class _SpaceGameState extends State<SpaceGame> {
   late GameSession _session;
+  SettingsController? _settings;
 
   bool _ready = false;
   bool _paused = false;
@@ -26,7 +29,33 @@ class _SpaceGameState extends State<SpaceGame> {
   @override
   void initState() {
     super.initState();
+
     _setupGame(saveFile: widget.saveFile);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final next = SettingsScope.of(context);
+    if (identical(_settings, next)) return;
+
+    _settings?.removeListener(_onSettingsChanged);
+    _settings = next;
+    _settings?.addListener(_onSettingsChanged);
+
+    _onSettingsChanged();
+  }
+
+  void _onSettingsChanged() {
+    if (!_ready) return;
+    final data = _settings!.value;
+
+    final audio = _session.engine.world.tryGetComponent<AudioSettings>();
+    if (audio != null) {
+      audio.musicVolume = data.musicVolume;
+      audio.sfxVolume = data.sfxVolume;
+    }
   }
 
   void _setupGame({String? saveFile}) async {
@@ -47,6 +76,17 @@ class _SpaceGameState extends State<SpaceGame> {
   }
 
   @override
+  void dispose() {
+    _settings?.removeListener(_onSettingsChanged);
+    super.dispose();
+  }
+
+  void _setPaused(bool paused) {
+    setState(() => _paused = paused);
+    _session.engine.paused = paused;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -57,7 +97,7 @@ class _SpaceGameState extends State<SpaceGame> {
           paused: !_ready || _paused,
           onKeyEvent: (event) {
             if (event is KeyDownEvent && event.logicalKey == .escape) {
-              setState(() => _paused = !_paused);
+              _setPaused(!_paused);
             }
           },
         ),
@@ -73,7 +113,10 @@ class _SpaceGameState extends State<SpaceGame> {
               hudStateStore: _session.hudStateStore,
               eventBus: _session.engine.eventBus,
               bars: bars,
-              onReset: () => _setupGame(saveFile: null),
+              onReset: () {
+                _session.engine.dispose();
+                _setupGame(saveFile: null);
+              },
             );
           },
         ),
@@ -96,7 +139,7 @@ class _SpaceGameState extends State<SpaceGame> {
         ),
         if (_paused)
           PauseMenu(
-            onResume: () => setState(() => _paused = false),
+            onResume: () => _setPaused(false),
             onSave: () => Persistence.instance.saveGame(_session),
           ),
       ],

@@ -65,6 +65,7 @@ class ParticleSystem extends System {
             initialVelocity: velocity.clone()
               ..add(emitter.initialVelocity.rotated(rotation)),
             fadeOutTime: emitter.fadeOutTime,
+            mass: emitter.mass,
             parent: currentStageRef?.stage,
           );
           commands.spawn(particle);

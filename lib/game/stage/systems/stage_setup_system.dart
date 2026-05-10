@@ -26,20 +26,26 @@ class StageSetupSystem extends System {
     final currentStage = run.get<CurrentStage>().stage;
     if (currentStage != null) return;
 
-    final stage = createStage(parent: run);
-    commands.spawn(stage);
-    run.get<CurrentStage>().stage = stage;
+    final random = Random();
 
-    final setupState = stage.get<StageSetupState>();
-
-    setupState.status = .generating;
     // TODO: generate config
     final stageConfig = StageConfig(
       stageSize: Vector2(10000, 10000),
       objectiveCount: 1,
     );
 
-    final random = Random();
+    final bgmIndex = random.nextInt(7) + 1;
+
+    final stage = createStage(
+      backgroundMusic: 'assets/music/bgm_$bgmIndex.mp3',
+      parent: run,
+    );
+    commands.spawn(stage);
+    run.get<CurrentStage>().stage = stage;
+
+    final setupState = stage.get<StageSetupState>();
+
+    setupState.status = .generating;
 
     final blueprint = await StageGenerator(
       assetManager: assetManager,
@@ -60,6 +66,7 @@ class StageSetupSystem extends System {
       assetManager: assetManager,
       blueprint: blueprint,
       stage: stage,
+      random: random,
     ).spawn();
 
     setupState.status = .ready;

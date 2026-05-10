@@ -32,7 +32,12 @@ class ObjectiveGenerator {
     if (planet == null) return;
 
     final astronaut = AstronautSpawnSpec(
-      image: await assetManager.loadImage('assets/atlas.png'),
+      astronautImage: await assetManager.loadImage(
+        'assets/astronaut/astronaut.png',
+      ),
+      shipWreckImage: await assetManager.loadImage(
+        'assets/astronaut/ship_wreck.png',
+      ),
       planet: planet,
       planetAngle: random.nextDouble() * 2 * pi,
     );

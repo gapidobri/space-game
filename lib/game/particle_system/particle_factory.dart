@@ -12,6 +12,7 @@ Entity createParticle({
   double rotation = 0,
   Vector2? initialVelocity,
   double fadeOutTime = 0,
+  double? mass,
   Entity? parent,
 }) {
   final entity = Entity();
@@ -23,7 +24,7 @@ Entity createParticle({
   );
   entity.add(
     RigidBody(
-      mass: 0.000001,
+      mass: mass ?? 0.000001,
       gravityScale: 0,
       velocity: initialVelocity?.clone(),
     ),

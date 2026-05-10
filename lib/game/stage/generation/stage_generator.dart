@@ -4,7 +4,7 @@ import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/asteroid/asteroid_spawn_spec.dart';
 import 'package:space_game/game/entry_portal/entry_portal_spawn_spec.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
-import 'package:space_game/game/portal/portal_spawn_spec.dart';
+import 'package:space_game/game/exit_portal/exit_portal_spawn_spec.dart';
 import 'package:space_game/game/stage/generation/stage_spawnpoint_spec.dart';
 import 'package:space_game/game/stage/stage_blueprint.dart';
 import 'package:space_game/game/stage/stage_config.dart';
@@ -69,7 +69,7 @@ class StageGenerator {
           playerSpawnPosition + portalSpawnVector * portalSpawnDistance;
     } while (!stageSize.toRect().contains(portalSpawnPosition.toOffset()));
 
-    blueprint.portal = PortalSpawnSpec(position: portalSpawnPosition);
+    blueprint.portal = ExitPortalSpawnSpec(position: portalSpawnPosition);
 
     // planets
     for (int i = 0; i < regionDistances.length - 1; i++) {

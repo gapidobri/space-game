@@ -2,9 +2,12 @@ import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/rocket/rocket_factory.dart';
 import 'package:space_game/game/app/system_registry.dart';
 import 'package:space_game/game/run/run_factory.dart';
+import 'package:space_game/game/settings/settings_factory.dart';
 
 Future<void> bootstrapGame(GameSession session) async {
   final GameSession(:engine, :assetManager) = session;
+
+  engine.addEntity(createSettings());
 
   final rocketSprite = await assetManager.loadImage('assets/rocket/rocket.png');
 

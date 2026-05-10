@@ -1,6 +1,6 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/objective/components/objective.dart';
-import 'package:space_game/game/portal/portal_state.dart';
+import 'package:space_game/game/exit_portal/exit_portal_state.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
 import 'package:space_game/game/stage/components/stage_state.dart';
 import 'package:space_game/game/stage/events/stage_phase_changed_event.dart';
@@ -33,7 +33,7 @@ class StageFlowSystem extends System {
           break;
 
         case .portalReady:
-          final portalState = world.tryGetComponent<PortalState>();
+          final portalState = world.tryGetComponent<ExitPortalState>();
           if (portalState?.status == .completed) {
             _changePhase(state, .leaving);
           }

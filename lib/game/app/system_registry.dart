@@ -5,8 +5,8 @@ import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/entry_portal/entry_portal_transition_system.dart';
 import 'package:space_game/game/objective/systems/objective_system.dart';
 import 'package:space_game/game/particle_system/particle_system.dart';
-import 'package:space_game/game/portal/exit_portal_transition_system.dart';
-import 'package:space_game/game/portal/portal_system.dart';
+import 'package:space_game/game/exit_portal/exit_portal_transition_system.dart';
+import 'package:space_game/game/exit_portal/exit_portal_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_destruction_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_visual_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
@@ -23,6 +23,7 @@ import 'package:space_game/game/planet/occupancy/planet_occupancy_system.dart';
 import 'package:space_game/game/rocket/rescue/astronaut_rescue_system.dart';
 import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
+import 'package:space_game/game/sound/background_music/background_music_system.dart';
 import 'package:space_game/game/stage/systems/stage_cleanup_system.dart';
 import 'package:space_game/game/stage/systems/stage_flow_system.dart';
 import 'package:space_game/game/stage/systems/stage_setup_system.dart';
@@ -79,7 +80,7 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(InteractionSystem(eventBus: engine.eventBus));
   engine.addSystem(AstronautRescueSystem(eventBus: engine.eventBus));
   engine.addSystem(MiningSystem(eventBus: engine.eventBus));
-  engine.addSystem(PortalSystem(eventBus: engine.eventBus));
+  engine.addSystem(ExitPortalSystem(eventBus: engine.eventBus));
 
   // presentation
   engine.addSystem(InteractionIndicatorSystem());
@@ -90,6 +91,9 @@ void registerGameSystems({required GameSession session}) {
     HudPresenterSystem(output: hudStateStore, project: projectHudData),
   );
   engine.addSystem(RocketVisualSystem());
+
+  // sound
+  engine.addSystem(BackgroundMusicSystem());
 
   // cleanup
   engine.addSystem(ParentSystem());

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
@@ -5,12 +6,13 @@ import 'package:space_game/game/asteroid/asteroid_factory.dart';
 import 'package:space_game/game/astronaut/astronaut_factory.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
 import 'package:space_game/game/astronaut/astronaut_spawn_spec.dart';
+import 'package:space_game/game/astronaut/ship_wreck/ship_wreck_factory.dart';
 import 'package:space_game/game/background/background_factory.dart';
 import 'package:space_game/game/entry_portal/entry_portal_factory.dart';
 import 'package:space_game/game/objective/objective_factory.dart';
 import 'package:space_game/game/planet/planet_factory.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
-import 'package:space_game/game/portal/portal_factory.dart';
+import 'package:space_game/game/exit_portal/exit_portal_factory.dart';
 import 'package:space_game/game/stage/components/stage_spawn_point.dart';
 import 'package:space_game/game/stage/stage_blueprint.dart';
 
@@ -20,12 +22,14 @@ class StageSpawner {
     required this.assetManager,
     required this.blueprint,
     required this.stage,
+    required this.random,
   });
 
   final Commands commands;
   final AssetManager assetManager;
   final StageBlueprint blueprint;
   final Entity stage;
+  final Random random;
 
   final _planets = <PlanetSpawnSpec, Entity>{};
   final _astronauts = <AstronautSpawnSpec, Entity>{};
@@ -42,7 +46,7 @@ class StageSpawner {
     );
 
     commands.spawn(
-      createPortal(
+      createExitPortal(
         spec: blueprint.portal,
         image: await assetManager.loadImage('assets/portals/exit_portal.png'),
         parent: stage,
@@ -61,7 +65,7 @@ class StageSpawner {
 
     for (final spec in blueprint.astronauts) {
       final astronaut = createAstronaut(
-        image: spec.image,
+        image: spec.astronautImage,
         location: AstronautLocationOnPlanet(
           planet: _planets[spec.planet]!,
           angle: spec.planetAngle,
@@ -70,6 +74,13 @@ class StageSpawner {
       );
       _astronauts[spec] = astronaut;
       commands.spawn(astronaut);
+
+      final shipWreck = createShipWreck(
+        image: spec.shipWreckImage,
+        planet: _planets[spec.planet]!,
+        angle: spec.planetAngle + random.nextDouble() > 0.5 ? 0.2 : -0.2,
+      );
+      commands.spawn(shipWreck);
     }
 
     for (final spec in blueprint.objectives) {

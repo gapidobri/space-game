@@ -16,6 +16,7 @@ class ParticleEmitter extends Component {
     Vector2? initialVelocity,
     Vector2? randomSpawnOffset,
     double? minLifetime,
+    double? mass,
   }) : initialVelocity = initialVelocity ?? Vector2.zero(),
        randomSpawnOffset = randomSpawnOffset ?? Vector2.zero(),
        minLifetime = minLifetime ?? maxLifetime;
@@ -34,6 +35,7 @@ class ParticleEmitter extends Component {
   double minLifetime;
   double maxLifetime;
   double fadeOutTime;
+  double? mass;
 
   double nextSpawn = 0;
 }

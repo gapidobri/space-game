@@ -19,8 +19,8 @@ import 'package:space_game/game/particle_system/particle_emitter.dart';
 import 'package:space_game/game/planet/atmosphere/atmosphere.dart';
 import 'package:space_game/game/planet/occupancy/planet_occupant.dart';
 import 'package:space_game/game/planet/planet_tag.dart';
-import 'package:space_game/game/portal/portal_state.dart';
-import 'package:space_game/game/portal/portal_tag.dart';
+import 'package:space_game/game/exit_portal/exit_portal_state.dart';
+import 'package:space_game/game/exit_portal/exit_portal_tag.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
@@ -32,6 +32,7 @@ import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/run/run_tag.dart';
 import 'package:space_game/game/shared/damage/damage_dealer.dart';
 import 'package:space_game/game/shared/damage/health.dart';
+import 'package:space_game/game/sound/background_music/background_music.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
 import 'package:space_game/game/stage/components/stage_spawn_point.dart';
 import 'package:space_game/game/stage/components/stage_state.dart';
@@ -83,9 +84,9 @@ void registerCodecs(WorldStateSerializer serializer) {
   serializer.registerCodec<Atmosphere>(_AtmosphereCodec());
   serializer.registerCodec<PlanetOccupant>(_PlanetOccupantCodec());
 
-  // portal
-  serializer.registerCodec<PortalTag>(_PortalTagCodec());
-  serializer.registerCodec<PortalState>(_PortalStateCodec());
+  // exit portal
+  serializer.registerCodec<ExitPortalTag>(_ExitPortalTagCodec());
+  serializer.registerCodec<ExitPortalState>(_ExitPortalStateCodec());
 
   // rocket
   serializer.registerCodec<RocketTag>(_RocketTagCodec());
@@ -111,6 +112,9 @@ void registerCodecs(WorldStateSerializer serializer) {
   serializer.registerCodec<StageSpawnPoint>(_StageSpawnPointCodec());
   serializer.registerCodec<StageState>(_StageStateCodec());
   serializer.registerCodec<StageTransitionState>(_StageTransitionStateCodec());
+
+  // sound
+  serializer.registerCodec<BackgroundMusic>(_BackgroundMusicCodec());
 }
 
 class _AlienTagCodec extends ComponentCodec<AlienTag> {
@@ -451,30 +455,30 @@ class _PlanetOccupantCodec extends ComponentCodec<PlanetOccupant> {
   };
 }
 
-class _PortalTagCodec extends ComponentCodec<PortalTag> {
+class _ExitPortalTagCodec extends ComponentCodec<ExitPortalTag> {
   @override
-  String get typeId => 'portal.tag';
+  String get typeId => 'exitPortal.tag';
 
   @override
-  PortalTag decode(Map<String, Object?> data) => PortalTag();
+  ExitPortalTag decode(Map<String, Object?> data) => ExitPortalTag();
 
   @override
-  Map<String, Object?> encode(PortalTag component) => {};
+  Map<String, Object?> encode(ExitPortalTag component) => {};
 }
 
-class _PortalStateCodec extends ComponentCodec<PortalState> {
+class _ExitPortalStateCodec extends ComponentCodec<ExitPortalState> {
   @override
-  String get typeId => 'portal.state';
+  String get typeId => 'exitPortal.state';
 
   @override
-  PortalState decode(Map<String, Object?> data) => PortalState(
-    status: PortalStatus.values.firstWhere((v) => v.name == data['status']),
+  ExitPortalState decode(Map<String, Object?> data) => ExitPortalState(
+    status: ExitPortalStatus.values.firstWhere((v) => v.name == data['status']),
     openProgress: decodeDouble(data, 'openProgress')!,
     teleportProgress: decodeDouble(data, 'teleportProgress')!,
   );
 
   @override
-  Map<String, Object?> encode(PortalState component) => {
+  Map<String, Object?> encode(ExitPortalState component) => {
     'status': component.status.name,
     'openProgress': component.openProgress,
     'teleportProgress': component.teleportProgress,
@@ -745,5 +749,26 @@ class _StageTransitionStateCodec extends ComponentCodec<StageTransitionState> {
   @override
   Map<String, Object?> encode(StageTransitionState component) => {
     'playerPlaced': component.playerPlaced,
+  };
+}
+
+class _BackgroundMusicCodec extends ComponentCodec<BackgroundMusic> {
+  @override
+  String get typeId => 'sound.backgroundMusic';
+
+  @override
+  BackgroundMusic decode(Map<String, Object?> data) => BackgroundMusic(
+    assetPath: data['assetPath'] as String,
+    playing: decodeBool(data, 'playing')!,
+    fadeTime: decodeDouble(data, 'fadeTime')!,
+    fadeProgress: decodeDouble(data, 'fadeProgress')!,
+  );
+
+  @override
+  Map<String, Object?> encode(BackgroundMusic component) => {
+    'assetPath': component.assetPath,
+    'playing': component.playing,
+    'fadeTime': component.fadeTime,
+    'fadeProgress': component.fadeProgress,
   };
 }

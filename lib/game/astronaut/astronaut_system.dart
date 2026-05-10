@@ -11,12 +11,12 @@ class AstronautSystem extends System {
   @override
   void update(double dt, World world, Commands commands) {
     for (final astronaut in world.query<AstronautTag>()) {
-      final location = astronaut.get<AstronautLocationStore>();
+      final locationStore = astronaut.get<AstronautLocationStore>();
       final sprite = astronaut.get<Sprite>();
 
-      final locationType = location.location;
+      final location = locationStore.location;
 
-      switch (locationType) {
+      switch (location) {
         case AstronautLocationOnPlanet(:final planet, :final angle):
           sprite.visible = true;
           if (!astronaut.has<InteractionTarget>()) {
