@@ -37,8 +37,13 @@ flutter:
     - assets/portals/
     - assets/astronaut/
     - assets/music/
+    - assets/aliens/
+    - assets/projectiles/
 
   fonts:
     - family: Doto
       fonts:
         - asset: assets/fonts/Doto.ttf
+    - family: Roboto Mono
+      fonts:
+        - asset: assets/fonts/RobotoMono.ttf

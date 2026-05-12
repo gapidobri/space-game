@@ -1,5 +1,10 @@
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/alien/systems/alien_movement_system.dart';
+import 'package:space_game/game/alien/alien_shooting_system.dart';
+import 'package:space_game/game/alien/alien_target_system.dart';
+import 'package:space_game/game/alien/animation/alien_animation_system.dart';
+import 'package:space_game/game/alien/destruction/alien_destruction_system.dart';
+import 'package:space_game/game/alien/alien_chase_system.dart';
+import 'package:space_game/game/alien/weapon/weapon_cooldown_system.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
 import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/entry_portal/entry_portal_transition_system.dart';
@@ -7,6 +12,8 @@ import 'package:space_game/game/objective/systems/objective_system.dart';
 import 'package:space_game/game/particle_system/particle_system.dart';
 import 'package:space_game/game/exit_portal/exit_portal_transition_system.dart';
 import 'package:space_game/game/exit_portal/exit_portal_system.dart';
+import 'package:space_game/game/projectile/projectile_homing_system.dart';
+import 'package:space_game/game/projectile/projectile_spawn_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_destruction_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_visual_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
@@ -23,7 +30,9 @@ import 'package:space_game/game/planet/occupancy/planet_occupancy_system.dart';
 import 'package:space_game/game/rocket/rescue/astronaut_rescue_system.dart';
 import 'package:space_game/game/rocket/systems/landing_assistance_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_control_system.dart';
+import 'package:space_game/game/shared/lifetime/lifetime_system.dart';
 import 'package:space_game/game/sound/background_music/background_music_system.dart';
+import 'package:space_game/game/sound/sound_effects/sound_effects_system.dart';
 import 'package:space_game/game/stage/systems/stage_cleanup_system.dart';
 import 'package:space_game/game/stage/systems/stage_flow_system.dart';
 import 'package:space_game/game/stage/systems/stage_setup_system.dart';
@@ -51,7 +60,6 @@ void registerGameSystems({required GameSession session}) {
   // simulation
   engine.addSystem(AtmosphereSystem());
   engine.addSystem(RocketControlSystem(inputState: inputState));
-  engine.addSystem(AlienMovementSystem());
 
   // physics
   engine.addSystem(PhysicsSystem());
@@ -65,6 +73,23 @@ void registerGameSystems({required GameSession session}) {
   engine.addSystem(StageCleanupSystem());
   engine.addSystem(ObjectiveSystem(eventBus: engine.eventBus));
   engine.addSystem(StageFlowSystem(eventBus: engine.eventBus));
+
+  // projectile
+  engine.addSystem(
+    ProjectileSpawnSystem(
+      eventBus: engine.eventBus,
+      assetManager: assetManager,
+    ),
+  );
+  engine.addSystem(ProjectileHomingSystem());
+
+  // alien
+  engine.addSystem(AlienChaseSystem());
+  engine.addSystem(AlienTargetSystem());
+  engine.addSystem(AlienShootingSystem(eventBus: engine.eventBus));
+  engine.addSystem(AlienDestructionSystem(eventBus: engine.eventBus));
+  engine.addSystem(WeaponCooldownSystem());
+  engine.addSystem(AlienAnimationSystem());
 
   // gameplay resolution
   engine.addSystem(AstronautSystem());
@@ -94,12 +119,17 @@ void registerGameSystems({required GameSession session}) {
 
   // sound
   engine.addSystem(BackgroundMusicSystem());
+  engine.addSystem(
+    SoundEffectsSystem(priority: -100, eventBus: engine.eventBus),
+  );
 
   // cleanup
   engine.addSystem(ParentSystem());
+  engine.addSystem(LifetimeSystem());
 
   // render
   final renderSystem = RenderSystem(queue: renderQueue, camera: cameraState);
   renderSystem.addPass(OffscreenIndicatorRenderPass());
+  renderSystem.addPass(PhysicsVectorsOverlay());
   engine.addSystem(renderSystem);
 }

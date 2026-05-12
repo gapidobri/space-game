@@ -7,6 +7,11 @@ import 'package:space_game/game/settings/settings_factory.dart';
 Future<void> bootstrapGame(GameSession session) async {
   final GameSession(:engine, :assetManager) = session;
 
+  await session.assetManager.preloadImages([
+    'assets/projectiles/bullet.png',
+    'assets/projectiles/torpedo.png',
+  ]);
+
   engine.addEntity(createSettings());
 
   final rocketSprite = await assetManager.loadImage('assets/rocket/rocket.png');

@@ -32,6 +32,7 @@ class StageSetupSystem extends System {
     final stageConfig = StageConfig(
       stageSize: Vector2(10000, 10000),
       objectiveCount: 1,
+      regionPlanetCount: 0, // TODO: tmp
     );
 
     final bgmIndex = random.nextInt(7) + 1;

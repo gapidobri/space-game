@@ -6,9 +6,6 @@ class AtmosphereSystem extends System {
   AtmosphereSystem();
 
   @override
-  int get priority => 480;
-
-  @override
   void update(double dt, World world, Commands commands) {
     for (final planet in world.query2<Transform, Atmosphere>()) {
       final pTransform = planet.get<Transform>();

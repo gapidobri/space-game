@@ -30,7 +30,7 @@ class StageGenerator {
   final blueprint = StageBlueprint();
 
   Future<StageBlueprint> generate() async {
-    final StageConfig(:stageSize) = stageConfig;
+    final StageConfig(:stageSize, :regionPlanetCount) = stageConfig;
 
     // player
     final playerSpawnPosition = Vector2(
@@ -76,7 +76,7 @@ class StageGenerator {
       final min = regionDistances[i];
       final max = regionDistances[i + 1];
 
-      for (int j = 0; j < 3; j++) {
+      for (int j = 0; j < regionPlanetCount; j++) {
         final position = _getRandomPosition(
           center: playerSpawnPosition,
           min: min,

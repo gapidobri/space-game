@@ -7,6 +7,7 @@ import 'package:space_game/game/shared/input/input.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/components/rocket_engine.dart';
+import 'package:space_game/game/rocket/components/rocket_propulsion_state.dart';
 
 class RocketControlSystem extends System {
   RocketControlSystem({super.priority, required this.inputState});
@@ -26,15 +27,26 @@ class RocketControlSystem extends System {
       final fuelTank = rocket.get<FuelTank>();
       final rocketLocation = rocket.get<RocketLocationStore>();
       final emitter = _getParticleEmitter(world, rocket);
+      final propulsion =
+          rocket.tryGet<RocketPropulsionState>() ?? RocketPropulsionState();
+      if (!rocket.has<RocketPropulsionState>()) {
+        rocket.add(propulsion);
+      }
 
-      if (!engine.enabled || fuelTank.fuel <= 0) {
-        emitter?.enabled = false;
+      final canThrust = engine.enabled && fuelTank.fuel > 0;
+      final thrusting = canThrust && thrustInput;
+      final boosting = thrusting && boostInput;
+
+      propulsion.thrusting = thrusting;
+      propulsion.boosting = boosting;
+
+      emitter?.enabled = thrusting;
+
+      if (!canThrust) {
         continue;
       }
 
-      emitter?.enabled = thrustInput;
-
-      if (thrustInput) {
+      if (thrusting) {
         rocketLocation.location = RocketLocationInSpace();
       }
 
@@ -47,8 +59,8 @@ class RocketControlSystem extends System {
       }
       rigidBody.accumulatedTorque += rotationForce;
 
-      final boost = boostInput ? engine.boostMultiplier : 1;
-      final thrust = thrustInput ? engine.thrustForce * boost : 0;
+      final boost = boosting ? engine.boostMultiplier : 1;
+      final thrust = thrusting ? engine.thrustForce * boost : 0;
 
       final sinR = math.sin(transform.rotation);
       final cosR = math.cos(transform.rotation);

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/particle_system/particle_emitter.dart';
 import 'package:space_game/game/shared/collision/collision_layers.dart';
+import 'package:space_game/game/shared/damage/damage_dealer.dart';
 import 'package:space_game/game/shared/damage/health.dart';
 import 'package:space_game/game/mining/drill.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
@@ -43,6 +44,7 @@ Entity createRocket({required Asset<Image> image}) {
   entity.add(Eva(maxInteractionRange: 100));
   entity.add(Health(maxHealth: 100));
   entity.add(Drill(drillSpeed: 5));
+  entity.add(VelocityDamageDealer(damageMultiplier: 0.1));
 
   // ui
   entity.add(CameraFollowTarget());

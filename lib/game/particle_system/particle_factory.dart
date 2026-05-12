@@ -45,6 +45,7 @@ Entity createParticle({
     ),
   );
   entity.add(Particle(lifetime: lifetime, fadeOutTime: fadeOutTime));
+  entity.add(PhysicsDebugOverride(enabled: false));
 
   if (parent != null) {
     entity.add(Parent(parent: parent));

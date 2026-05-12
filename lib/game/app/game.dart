@@ -8,6 +8,7 @@ import 'package:space_game/game/persistence/persistence.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/settings/audio_settings.dart';
 import 'package:space_game/settings.dart';
+import 'package:space_game/ui/console/console.dart';
 import 'package:space_game/ui/pause_menu.dart';
 
 class SpaceGame extends StatefulWidget {
@@ -73,6 +74,7 @@ class _SpaceGameState extends State<SpaceGame> {
       }
     }
     setState(() => _ready = true);
+    _onSettingsChanged();
   }
 
   @override
@@ -142,6 +144,7 @@ class _SpaceGameState extends State<SpaceGame> {
             onResume: () => _setPaused(false),
             onSave: () => Persistence.instance.saveGame(_session),
           ),
+        Positioned(left: 16, bottom: 16, child: Console(session: _session)),
       ],
     );
   }
