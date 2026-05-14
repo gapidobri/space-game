@@ -29,7 +29,7 @@ class StageGenerator {
 
   final blueprint = StageBlueprint();
 
-  Future<StageBlueprint> generate() async {
+  StageBlueprint generate() {
     final StageConfig(:stageSize, :regionPlanetCount) = stageConfig;
 
     // player
@@ -87,9 +87,9 @@ class StageGenerator {
 
         blueprint.planets.add(
           PlanetSpawnSpec(
-            image: await assetManager.loadImage(
+            image: assetManager.image(
               'assets/planets/planet_0${random.nextInt(7) + 1}.png',
-            ),
+            )!,
             radius: 300,
             mass: 6e16,
             position: position,
@@ -100,7 +100,7 @@ class StageGenerator {
     }
 
     // asteroids
-    final asteroidsImage = await assetManager.loadImage('assets/asteroids.png');
+    final asteroidsImage = assetManager.image('assets/asteroids.png')!;
     for (int i = 0; i < regionDistances.length - 1; i++) {
       final min = regionDistances[i];
       final max = regionDistances[i + 1];

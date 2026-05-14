@@ -5,20 +5,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsData {
   const SettingsData({
     this.musicVolume = 0.25,
+    this.musicEnabled = true,
     this.sfxVolume = 1.0,
     this.sfxEnabled = true,
   });
 
   final double musicVolume;
+  final bool musicEnabled;
   final double sfxVolume;
   final bool sfxEnabled;
 
   SettingsData copyWith({
     double? musicVolume,
+    bool? musicEnabled,
     double? sfxVolume,
     bool? sfxEnabled,
   }) => SettingsData(
     musicVolume: musicVolume ?? this.musicVolume,
+    musicEnabled: musicEnabled ?? this.musicEnabled,
     sfxVolume: sfxVolume ?? this.sfxVolume,
     sfxEnabled: sfxEnabled ?? this.sfxEnabled,
   );
@@ -28,6 +32,7 @@ class SettingsController extends ValueNotifier<SettingsData> {
   SettingsController(this._prefs) : super(const SettingsData());
 
   static const _kMusic = 'settings.musicVolume';
+  static const _kMusicEnabled = 'settings.musicEnabled';
   static const _kSfx = 'settings.sfxVolume';
   static const _kSfxEnabled = 'settings.sfxEnabled';
 
@@ -39,6 +44,7 @@ class SettingsController extends ValueNotifier<SettingsData> {
         0.0,
         1.0,
       )).toDouble(),
+      musicEnabled: _prefs.getBool(_kMusicEnabled) ?? value.musicEnabled,
       sfxVolume: ((_prefs.getDouble(_kSfx) ?? value.sfxVolume).clamp(
         0.0,
         1.0,
@@ -52,6 +58,12 @@ class SettingsController extends ValueNotifier<SettingsData> {
     if (!persist && next == value.musicVolume) return;
     value = value.copyWith(musicVolume: next);
     if (persist) await _prefs.setDouble(_kMusic, next);
+  }
+
+  Future<void> setMusicEnabled(bool enabled, {bool persist = true}) async {
+    if (!persist && enabled == value.musicEnabled) return;
+    value = value.copyWith(musicEnabled: enabled);
+    if (persist) await _prefs.setBool(_kMusicEnabled, enabled);
   }
 
   Future<void> setSfxVolume(double v, {bool persist = true}) async {

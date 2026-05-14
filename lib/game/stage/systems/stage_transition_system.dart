@@ -22,7 +22,7 @@ class StageTransitionSystem extends System {
 
     final runState = run.get<RunState>();
     final stageSetupState = stage.get<StageSetupState>();
-    if (runState.phase != .stageEnter || stageSetupState.status != .ready) {
+    if (runState.phase != .stageSetup || stageSetupState.status != .ready) {
       return;
     }
 

@@ -9,6 +9,8 @@ import 'package:space_game/game/astronaut/astronaut_spawn_spec.dart';
 import 'package:space_game/game/astronaut/ship_wreck/ship_wreck_factory.dart';
 import 'package:space_game/game/background/background_factory.dart';
 import 'package:space_game/game/entry_portal/entry_portal_factory.dart';
+import 'package:space_game/game/mining/mineral_factory.dart';
+import 'package:space_game/game/mining/mineral_spawn_spec.dart';
 import 'package:space_game/game/objective/objective_factory.dart';
 import 'package:space_game/game/planet/planet_factory.dart';
 import 'package:space_game/game/planet/planet_spawn_spec.dart';
@@ -33,14 +35,15 @@ class StageSpawner {
 
   final _planets = <PlanetSpawnSpec, Entity>{};
   final _astronauts = <AstronautSpawnSpec, Entity>{};
+  final _minerals = <MineralSpawnSpec, Entity>{};
 
-  Future<void> spawn() async {
+  void spawn() {
     stage.add(StageSpawnPoint(playerPosition: blueprint.spawnPoint.position));
 
     commands.spawn(
       createEntryPortal(
         spec: blueprint.entryPortal,
-        image: await assetManager.loadImage('assets/portals/entry_portal.png'),
+        image: assetManager.image('assets/portals/entry_portal.png')!,
         parent: stage,
       ),
     );
@@ -48,7 +51,10 @@ class StageSpawner {
     commands.spawn(
       createExitPortal(
         spec: blueprint.portal,
-        image: await assetManager.loadImage('assets/portals/exit_portal.png'),
+        image: assetManager.image('assets/portals/exit_portal.png')!,
+        offscreenIndicatorImage: assetManager.image(
+          'assets/portals/exit_portal_indicator.png',
+        )!,
         parent: stage,
       ),
     );
@@ -83,6 +89,19 @@ class StageSpawner {
       commands.spawn(shipWreck);
     }
 
+    for (final spec in blueprint.minerals) {
+      final mineral = createMineral(
+        image: spec.mineralImage,
+        planet: _planets[spec.planet]!,
+        planetAngle: spec.planetAngle,
+        resourceType: spec.resourceType,
+        volume: spec.volume,
+        parent: stage,
+      );
+      _minerals[spec] = mineral;
+      commands.spawn(mineral);
+    }
+
     for (final spec in blueprint.objectives) {
       commands.spawn(
         createObjective(
@@ -96,18 +115,14 @@ class StageSpawner {
 
     commands.spawn(
       createBackground(
-        image: await assetManager.loadImage(
-          'assets/background/background_dust.png',
-        ),
+        image: assetManager.image('assets/background/background_dust.png')!,
         parallax: 0.9,
         parent: stage,
       ),
     );
     commands.spawn(
       createBackground(
-        image: await assetManager.loadImage(
-          'assets/background/background_stars.png',
-        ),
+        image: assetManager.image('assets/background/background_stars.png')!,
         parallax: 0.9,
         parent: stage,
       ),

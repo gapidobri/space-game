@@ -8,8 +8,11 @@ import 'package:space_game/game/mining/resource_node.dart';
 import 'package:space_game/game/planet/occupancy/planet_occupant.dart';
 
 Entity createMineral({
+  required Asset<Image> image,
   required Entity planet,
   required double planetAngle,
+  required ResourceType resourceType,
+  required double volume,
   Entity? parent,
 }) {
   final entity = Entity();
@@ -18,20 +21,18 @@ Entity createMineral({
   entity.add(MineralTag());
 
   // position
-  entity.add(Transform());
+  entity.add(Transform()..scale.setValues(2.0, 2.0));
 
   // rendering
-  entity.add(
-    CircleShape(radius: 10, paint: PaintConfig()..color = Color(0xFFFFFFFF)),
-  );
+  entity.add(Sprite(image: image));
 
   // gameplay
   entity.add(PlanetOccupant(planet: planet, angle: planetAngle));
-  entity.add(InteractionTarget());
-  entity.add(ResourceNode(remaining: 10, resourceType: ResourceType.health));
+  entity.add(InteractionTarget(interactionText: 'Mine'));
+  entity.add(ResourceNode(remaining: volume, resourceType: resourceType));
 
   // ui
-  entity.add(OffscreenIndicator());
+  entity.add(OffscreenIndicator(image: image));
 
   // cleanup
   if (parent != null) {

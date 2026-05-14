@@ -5,7 +5,6 @@ import 'package:space_game/game/app/game_bootstrap.dart';
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/hud/game_overlay.dart';
 import 'package:space_game/game/persistence/persistence.dart';
-import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/settings/audio_settings.dart';
 import 'package:space_game/settings.dart';
 import 'package:space_game/ui/console/console.dart';
@@ -26,6 +25,7 @@ class _SpaceGameState extends State<SpaceGame> {
 
   bool _ready = false;
   bool _paused = false;
+  bool _consoleOpen = false;
 
   @override
   void initState() {
@@ -54,8 +54,8 @@ class _SpaceGameState extends State<SpaceGame> {
 
     final audio = _session.engine.world.tryGetComponent<AudioSettings>();
     if (audio != null) {
-      audio.musicVolume = data.musicVolume;
-      audio.sfxVolume = data.sfxVolume;
+      audio.musicVolume = data.musicEnabled ? data.musicVolume : 0;
+      audio.sfxVolume = data.sfxEnabled ? data.sfxVolume : 0;
     }
   }
 
@@ -98,53 +98,41 @@ class _SpaceGameState extends State<SpaceGame> {
           camera: _session.cameraState,
           paused: !_ready || _paused,
           onKeyEvent: (event) {
-            if (event is KeyDownEvent && event.logicalKey == .escape) {
-              _setPaused(!_paused);
+            if (event is KeyDownEvent) {
+              switch (event.logicalKey) {
+                case .escape:
+                  _setPaused(!_paused);
+                  break;
+                case .intlBackslash:
+                  setState(() => _consoleOpen = !_consoleOpen);
+                  break;
+              }
             }
           },
         ),
-        FutureBuilder(
-          future: _session.assetManager.loadImage('assets/bars.png'),
-          builder: (context, snapshot) {
-            final bars = snapshot.data;
-            if (bars == null) {
-              return SizedBox.shrink();
-            }
+        GameOverlay(
+          hudStateStore: _session.hudStateStore,
+          eventBus: _session.engine.eventBus,
+          onReset: () {
+            _session.engine.dispose();
+            _setupGame(saveFile: null);
+          },
+        ),
 
-            return GameOverlay(
-              hudStateStore: _session.hudStateStore,
-              eventBus: _session.engine.eventBus,
-              bars: bars,
-              onReset: () {
-                _session.engine.dispose();
-                _setupGame(saveFile: null);
-              },
-            );
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () =>
-                      _session.engine.world.tryGetComponent<RunState>()?.phase =
-                          .stageExit,
-                  child: Text('Complete stage'),
-                ),
-              ],
-            ),
-          ),
-        ),
         if (_paused)
           PauseMenu(
             onResume: () => _setPaused(false),
-            onSave: () => Persistence.instance.saveGame(_session),
+            onSave: (name) => Persistence.instance.saveGame(_session, name),
           ),
-        Positioned(left: 16, bottom: 16, child: Console(session: _session)),
+        if (_consoleOpen)
+          Positioned(
+            left: 16,
+            bottom: 16,
+            child: Console(
+              session: _session,
+              onClose: () => setState(() => _consoleOpen = false),
+            ),
+          ),
       ],
     );
   }

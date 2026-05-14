@@ -16,12 +16,12 @@ class StageSetupSystem extends System {
   final AssetManager assetManager;
 
   @override
-  void update(double dt, World world, Commands commands) async {
+  void update(double dt, World world, Commands commands) {
     final run = world.query<RunState>().firstOrNull;
     if (run == null) return;
 
     final runState = run.get<RunState>();
-    if (runState.phase != .stageEnter) return;
+    if (runState.phase != .stageSetup) return;
 
     final currentStage = run.get<CurrentStage>().stage;
     if (currentStage != null) return;
@@ -31,14 +31,38 @@ class StageSetupSystem extends System {
     // TODO: generate config
     final stageConfig = StageConfig(
       stageSize: Vector2(10000, 10000),
-      objectiveCount: 1,
-      regionPlanetCount: 0, // TODO: tmp
+      rescueObjectiveCount: 1,
+      fuelMineObjectiveCount: 1,
+      healthMineObjectiveCount: 1,
+      regionPlanetCount: 3,
+      difficultyStages: [
+        DifficultyStage(
+          timer: 30,
+          alienSpawners: [AlienSpawnConfig(type: .fighter, delay: 30)],
+        ),
+        DifficultyStage(
+          timer: 120,
+          alienSpawners: [
+            AlienSpawnConfig(type: .fighter, delay: 15),
+            AlienSpawnConfig(type: .frigate, delay: 50),
+          ],
+        ),
+        DifficultyStage(
+          timer: 300,
+          alienSpawners: [
+            AlienSpawnConfig(type: .fighter, delay: 15),
+            AlienSpawnConfig(type: .frigate, delay: 50),
+            AlienSpawnConfig(type: .torpedo, delay: 60),
+          ],
+        ),
+      ],
     );
 
     final bgmIndex = random.nextInt(7) + 1;
 
     final stage = createStage(
       backgroundMusic: 'assets/music/bgm_$bgmIndex.mp3',
+      config: stageConfig,
       parent: run,
     );
     commands.spawn(stage);
@@ -48,21 +72,21 @@ class StageSetupSystem extends System {
 
     setupState.status = .generating;
 
-    final blueprint = await StageGenerator(
+    final blueprint = StageGenerator(
       assetManager: assetManager,
       stageConfig: stageConfig,
       stage: stage,
       random: random,
     ).generate();
 
-    await ObjectiveGenerator(
+    ObjectiveGenerator(
       assetManager: assetManager,
       config: stageConfig,
       blueprint: blueprint,
       random: random,
     ).generate();
 
-    await StageSpawner(
+    StageSpawner(
       commands: commands,
       assetManager: assetManager,
       blueprint: blueprint,

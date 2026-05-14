@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 
-class Button extends StatelessWidget {
-  const Button({super.key, required this.text, required this.onClick});
+class MenuButton extends StatelessWidget {
+  const MenuButton({super.key, required this.child, required this.onClick});
 
-  final String text;
+  MenuButton.text({super.key, required String text, required this.onClick})
+    : child = Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24.0,
+            fontFamily: 'Doto',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+
+  final Widget child;
   final void Function() onClick;
 
   @override
@@ -14,16 +28,8 @@ class Button extends StatelessWidget {
         onTap: onClick,
         child: Container(
           color: Colors.black,
-          padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24.0,
-              fontFamily: 'Doto',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: child,
         ),
       ),
     );

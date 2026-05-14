@@ -40,7 +40,7 @@ Entity createPlanet({required PlanetSpawnSpec spec, Entity? parent}) {
   entity.add(Sprite(image: image, z: 10));
 
   // gameplay
-  entity.add(VelocityDamageDealer(damageMultiplier: 0.1));
+  entity.add(VelocityDamageDealer(damageMultiplier: 0.1, minVelocity: 50));
   if (atmosphere != null) {
     entity.add(
       CircleShape(

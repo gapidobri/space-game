@@ -23,9 +23,9 @@ class FailureScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 32.0),
-          Button(text: 'Retry', onClick: onReset),
+          MenuButton.text(text: 'Retry', onClick: onReset),
           SizedBox(height: 8.0),
-          Button(text: 'Main Menu', onClick: () => context.go('/')),
+          MenuButton.text(text: 'Main Menu', onClick: () => context.go('/')),
         ],
       ),
     );

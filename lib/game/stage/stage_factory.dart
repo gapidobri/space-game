@@ -1,11 +1,17 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/sound/background_music/background_music.dart';
+import 'package:space_game/game/stage/components/stage_config_store.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
 import 'package:space_game/game/stage/components/stage_state.dart';
 import 'package:space_game/game/stage/components/stage_transition_state.dart';
+import 'package:space_game/game/stage/stage_config.dart';
 import 'package:space_game/game/stage/stage_tag.dart';
 
-Entity createStage({required String backgroundMusic, Entity? parent}) {
+Entity createStage({
+  required String backgroundMusic,
+  required StageConfig config,
+  Entity? parent,
+}) {
   final entity = Entity();
   entity.add(StageTag());
 
@@ -15,6 +21,8 @@ Entity createStage({required String backgroundMusic, Entity? parent}) {
   entity.add(StageState(phase: StagePhase.briefing));
 
   entity.add(BackgroundMusic(assetPath: backgroundMusic, fadeTime: 2));
+
+  entity.add(StageConfigStore(config: config));
 
   if (parent != null) {
     entity.add(Parent(parent: parent));

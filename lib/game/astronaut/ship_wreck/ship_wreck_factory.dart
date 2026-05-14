@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/particle_system/particle_emitter.dart';
 import 'package:space_game/game/planet/occupancy/planet_occupant.dart';
 
 Entity createShipWreck({

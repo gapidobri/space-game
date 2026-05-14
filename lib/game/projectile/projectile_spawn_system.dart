@@ -27,9 +27,7 @@ class ProjectileSpawnSystem extends System {
 
     for (final event in eventBus.read<ProjectileSpawnRequestEvent>()) {
       final weapon = event.shooter.tryGet<Weapon>();
-      if (weapon == null || weapon.cooldownRemaining > 0) continue;
-
-      weapon.cooldownRemaining = weapon.cooldown;
+      if (weapon == null) continue;
 
       final transform = event.shooter.get<Transform>();
       final rigidBody = event.shooter.get<RigidBody>();
@@ -53,6 +51,15 @@ class ProjectileSpawnSystem extends System {
             parent: stage,
           );
           break;
+
+        case .bigBullet:
+          projectile = createBigBullet(
+            image: assetManager.image('assets/projectiles/big_bullet.png')!,
+            position: position,
+            rotation: transform.rotation,
+            velocity: velocity,
+            parent: stage,
+          );
 
         case .torpedo:
           projectile = createTorpedo(

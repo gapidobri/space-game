@@ -1,22 +1,28 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/alien/alien_shooting_decision_system.dart';
 import 'package:space_game/game/alien/alien_shooting_system.dart';
 import 'package:space_game/game/alien/alien_target_system.dart';
 import 'package:space_game/game/alien/animation/alien_animation_system.dart';
 import 'package:space_game/game/alien/destruction/alien_destruction_system.dart';
 import 'package:space_game/game/alien/alien_chase_system.dart';
+import 'package:space_game/game/alien/spawner/alien_spawner_system.dart';
 import 'package:space_game/game/alien/weapon/weapon_cooldown_system.dart';
 import 'package:space_game/game/astronaut/astronaut_system.dart';
 import 'package:space_game/game/background/parallax_system.dart';
 import 'package:space_game/game/entry_portal/entry_portal_transition_system.dart';
+import 'package:space_game/game/interaction/interaction_hint_render_pass.dart';
 import 'package:space_game/game/objective/systems/objective_system.dart';
 import 'package:space_game/game/particle_system/particle_system.dart';
 import 'package:space_game/game/exit_portal/exit_portal_transition_system.dart';
 import 'package:space_game/game/exit_portal/exit_portal_system.dart';
 import 'package:space_game/game/projectile/projectile_homing_system.dart';
+import 'package:space_game/game/projectile/projectile_orientation_system.dart';
 import 'package:space_game/game/projectile/projectile_spawn_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_destruction_system.dart';
 import 'package:space_game/game/rocket/systems/rocket_visual_system.dart';
+import 'package:space_game/game/run/systems/loading_overlay_animation_system.dart';
 import 'package:space_game/game/run/systems/run_flow_system.dart';
+import 'package:space_game/game/run/systems/run_timer_ticker_system.dart';
 import 'package:space_game/game/shared/damage/damage_system.dart';
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/hud/hud_projector.dart';
@@ -36,6 +42,7 @@ import 'package:space_game/game/sound/sound_effects/sound_effects_system.dart';
 import 'package:space_game/game/stage/systems/stage_cleanup_system.dart';
 import 'package:space_game/game/stage/systems/stage_flow_system.dart';
 import 'package:space_game/game/stage/systems/stage_setup_system.dart';
+import 'package:space_game/game/stage/systems/stage_timer_ticker_system.dart';
 import 'package:space_game/game/stage/systems/stage_transition_system.dart';
 
 void registerGameSystems({required GameSession session}) {
@@ -50,7 +57,7 @@ void registerGameSystems({required GameSession session}) {
 
   // input
   engine.addSystem(
-    InputSystem(
+    InputSystem<InputAction>(
       eventBus: engine.eventBus,
       actionState: inputState,
       keymap: createInputKeymap(),
@@ -68,11 +75,16 @@ void registerGameSystems({required GameSession session}) {
 
   // run
   engine.addSystem(RunFlowSystem(eventBus: engine.eventBus));
-  engine.addSystem(StageSetupSystem(assetManager: assetManager));
   engine.addSystem(StageTransitionSystem(cameraState: cameraState));
-  engine.addSystem(StageCleanupSystem());
-  engine.addSystem(ObjectiveSystem(eventBus: engine.eventBus));
+  engine.addSystem(LoadingOverlayAnimationSystem());
+  engine.addSystem(RunTimerTickerSystem());
+
+  // stage
   engine.addSystem(StageFlowSystem(eventBus: engine.eventBus));
+  engine.addSystem(StageSetupSystem(assetManager: assetManager));
+  engine.addSystem(ObjectiveSystem(eventBus: engine.eventBus));
+  engine.addSystem(StageCleanupSystem());
+  engine.addSystem(StageTimerTickerSystem());
 
   // projectile
   engine.addSystem(
@@ -81,18 +93,23 @@ void registerGameSystems({required GameSession session}) {
       assetManager: assetManager,
     ),
   );
+  engine.addSystem(ProjectileOrientationSystem());
   engine.addSystem(ProjectileHomingSystem());
 
   // alien
   engine.addSystem(AlienChaseSystem());
   engine.addSystem(AlienTargetSystem());
+  engine.addSystem(AlienShootingDecisionSystem());
   engine.addSystem(AlienShootingSystem(eventBus: engine.eventBus));
   engine.addSystem(AlienDestructionSystem(eventBus: engine.eventBus));
   engine.addSystem(WeaponCooldownSystem());
   engine.addSystem(AlienAnimationSystem());
+  engine.addSystem(
+    AlienSpawnerSystem(assetManager: assetManager, cameraState: cameraState),
+  );
 
   // gameplay resolution
-  engine.addSystem(AstronautSystem());
+  engine.addSystem(AstronautSystem(assetManager: assetManager));
   engine.addSystem(LandingAssistanceSystem(eventBus: engine.eventBus));
   engine.addSystem(DamageSystem(eventBus: engine.eventBus));
   engine.addSystem(RocketDestructionSystem(eventBus: engine.eventBus));
@@ -130,6 +147,7 @@ void registerGameSystems({required GameSession session}) {
   // render
   final renderSystem = RenderSystem(queue: renderQueue, camera: cameraState);
   renderSystem.addPass(OffscreenIndicatorRenderPass());
+  renderSystem.addPass(InteractionHintRenderPass(assetManager: assetManager));
   renderSystem.addPass(PhysicsVectorsOverlay());
   engine.addSystem(renderSystem);
 }

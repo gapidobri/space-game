@@ -41,7 +41,6 @@ Entity createParticle({
       halfWidth: size.width / 2,
       halfHeight: size.height / 2,
       collisionLayer: particleLayer,
-      collisionMask: defaultLayer | rocketLayer,
     ),
   );
   entity.add(Particle(lifetime: lifetime, fadeOutTime: fadeOutTime));

@@ -27,7 +27,9 @@ class StageFlowSystem extends System {
 
         case .exploring:
           final objectives = world.query<Objective>();
-          if (objectives.every((o) => o.get<Objective>().completed)) {
+          if (objectives
+              .map((o) => o.get<Objective>())
+              .every((o) => o.tier == .optional || o.completed)) {
             _changePhase(state, .portalReady);
           }
           break;

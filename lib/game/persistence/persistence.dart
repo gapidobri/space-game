@@ -5,7 +5,6 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:space_game/game/app/game_session.dart';
 import 'package:space_game/game/persistence/codecs.dart';
-import 'package:uuid/v7.dart';
 
 class Persistence {
   Persistence._() {
@@ -25,12 +24,12 @@ class Persistence {
 
   late final WorldStatePersistence<String> persistence;
 
-  Future<void> saveGame(GameSession session) async {
+  Future<void> saveGame(GameSession session, String name) async {
     final saved = persistence.encodeWorld(session.engine.world);
 
     final file = File(
       await getApplicationDocumentsDirectory().then(
-        (dir) => path.join(dir.path, 'saves', '${UuidV7().generate()}.json'),
+        (dir) => path.join(dir.path, 'saves', '$name.json'),
       ),
     );
 
@@ -39,13 +38,11 @@ class Persistence {
   }
 
   Future<List<String>> listSaves() async {
-    final documentsDirectory = await getApplicationDocumentsDirectory().then(
+    final savesDirectory = await getApplicationDocumentsDirectory().then(
       (dir) => path.join(dir.path, 'saves'),
     );
 
-    print(documentsDirectory);
-
-    final dir = Directory(documentsDirectory);
+    final dir = Directory(savesDirectory);
     if (!await dir.exists()) {
       return [];
     }
@@ -56,6 +53,14 @@ class Persistence {
         .where((file) => path.extension(file.path) == '.json')
         .map((file) => path.basenameWithoutExtension(file.path))
         .toList();
+  }
+
+  Future<void> deleteSave(String fileName) async {
+    final filePath = await getApplicationDocumentsDirectory().then(
+      (dir) => path.join(dir.path, 'saves', '$fileName.json'),
+    );
+
+    await File(filePath).delete();
   }
 
   Future<void> loadGame(GameSession session, String fileName) async {

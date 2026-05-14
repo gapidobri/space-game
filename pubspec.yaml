@@ -39,6 +39,8 @@ flutter:
     - assets/music/
     - assets/aliens/
     - assets/projectiles/
+    - assets/icons/
+    - assets/minerals/
 
   fonts:
     - family: Doto

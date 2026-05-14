@@ -1,10 +1,10 @@
 import 'package:gamengine/gamengine.dart';
 
-enum EntryPortalStatus { opening, teleporting, closing, closed }
+enum EntryPortalStatus { initial, opening, teleporting, closing, closed }
 
 class EntryPortalState extends Component {
   EntryPortalState({
-    this.status = .opening,
+    this.status = .initial,
     this.openProgress = 0,
     this.teleportProgress = 0,
   });

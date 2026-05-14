@@ -13,7 +13,7 @@ class MainMenu extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Space Game',
+          'Space Rescue',
           style: TextStyle(
             color: Colors.white,
             fontSize: 64.0,
@@ -26,10 +26,19 @@ class MainMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           spacing: 16.0,
           children: [
-            Button(text: 'New Game', onClick: () => context.go('/game')),
-            Button(text: 'Load Game', onClick: () => context.push('/load')),
-            Button(text: 'Settings', onClick: () => context.push('/settings')),
-            Button(text: 'Exit', onClick: () => SystemNavigator.pop()),
+            MenuButton.text(
+              text: 'New Game',
+              onClick: () => context.go('/game'),
+            ),
+            MenuButton.text(
+              text: 'Load Game',
+              onClick: () => context.push('/load'),
+            ),
+            MenuButton.text(
+              text: 'Settings',
+              onClick: () => context.push('/settings'),
+            ),
+            MenuButton.text(text: 'Exit', onClick: () => SystemNavigator.pop()),
           ],
         ),
       ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_game/settings.dart';
 import 'package:space_game/ui/widgets/button.dart';
+import 'package:space_game/ui/widgets/slider.dart';
 
 class SettingsMenu extends StatelessWidget {
   const SettingsMenu({super.key, this.onBack});
@@ -43,23 +44,38 @@ class SettingsMenu extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(
-                  width: 200,
-                  child: Slider(
-                    value: state.musicVolume,
-                    onChanged: (value) =>
-                        controller.setMusicVolume(value, persist: false),
-                    onChangeEnd: (value) =>
-                        controller.setMusicVolume(value, persist: true),
-                  ),
-                ),
-                SizedBox(height: 48.0),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisSize: .min,
+                  children: [
+                    MenuButton(
+                      child: state.musicEnabled
+                          ? Image.asset('assets/icons/sound_on.png')
+                          : Image.asset('assets/icons/sound_off.png'),
+                      onClick: () =>
+                          controller.setMusicEnabled(!state.musicEnabled),
+                    ),
 
-                Button(
-                  text: 'SFX: ${state.sfxEnabled ? 'On' : 'Off'}',
-                  onClick: () => controller.setSfxEnabled(!state.sfxEnabled),
+                    const SizedBox(width: 16.0),
+
+                    SizedBox(
+                      width: 200,
+                      child: MenuSlider(
+                        value: state.musicEnabled ? state.musicVolume : 0.0,
+                        onChanged: (value) {
+                          controller.setMusicEnabled(true, persist: false);
+                          controller.setMusicVolume(value, persist: false);
+                        },
+                        onChangeEnd: (value) {
+                          controller.setMusicEnabled(true, persist: true);
+                          controller.setMusicVolume(value, persist: true);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 16.0),
+
+                SizedBox(height: 48.0),
 
                 Text(
                   'SFX volume',
@@ -70,26 +86,44 @@ class SettingsMenu extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(
-                  width: 200,
-                  child: Slider(
-                    value: state.sfxVolume,
-                    onChanged: state.sfxEnabled
-                        ? (value) =>
-                              controller.setSfxVolume(value, persist: false)
-                        : null,
-                    onChangeEnd: state.sfxEnabled
-                        ? (value) =>
-                              controller.setSfxVolume(value, persist: true)
-                        : null,
-                  ),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisSize: .min,
+                  children: [
+                    MenuButton(
+                      child: state.sfxEnabled
+                          ? Image.asset('assets/icons/sound_on.png')
+                          : Image.asset('assets/icons/sound_off.png'),
+                      onClick: () =>
+                          controller.setSfxEnabled(!state.sfxEnabled),
+                    ),
+
+                    const SizedBox(width: 16.0),
+
+                    SizedBox(
+                      width: 200,
+                      child: MenuSlider(
+                        value: state.sfxEnabled ? state.sfxVolume : 0.0,
+                        onChanged: (value) {
+                          controller.setSfxEnabled(true, persist: false);
+                          controller.setSfxVolume(value, persist: false);
+                        },
+                        onChangeEnd: (value) {
+                          controller.setSfxEnabled(true, persist: true);
+                          controller.setSfxVolume(value, persist: true);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );
           },
         ),
 
-        Button(text: 'Back', onClick: onBack),
+        SizedBox(height: 48.0),
+
+        MenuButton.text(text: 'Back', onClick: onBack),
       ],
     );
   }

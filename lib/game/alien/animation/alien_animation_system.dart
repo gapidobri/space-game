@@ -7,6 +7,9 @@ import 'package:space_game/game/alien/destruction/alien_destruction_state.dart';
 
 class AlienAnimationSystem extends System {
   @override
+  int get priority => 730;
+
+  @override
   void update(double dt, World world, Commands commands) {
     for (final alien in world.query<AlienTag>()) {
       final animatedSprite = alien.get<AnimatedSprite>();
@@ -29,7 +32,7 @@ class AlienAnimationSystem extends System {
         if (!animatedSprite.playing) {
           destructionState.status = .dead;
         }
-        return;
+        continue;
       }
 
       if (state.shooting) {
@@ -39,10 +42,19 @@ class AlienAnimationSystem extends System {
             ..firstFrame = config.shooting.firstFrame
             ..frameCount = config.shooting.frameCount
             ..currentFrame = 0
-            ..loop = true;
+            ..loop = false;
           animationState.status = .shooting;
         }
-        return;
+        if (!animatedSprite.playing) {
+          state.shooting = false;
+
+          animatedSprite
+            ..playing = false
+            ..firstFrame = config.idleFrame
+            ..currentFrame = 0;
+          animationState.status = .idle;
+        }
+        continue;
       }
 
       if (animationState.status != .idle) {

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:gamengine/gamengine.dart';
@@ -27,11 +28,7 @@ class RocketControlSystem extends System {
       final fuelTank = rocket.get<FuelTank>();
       final rocketLocation = rocket.get<RocketLocationStore>();
       final emitter = _getParticleEmitter(world, rocket);
-      final propulsion =
-          rocket.tryGet<RocketPropulsionState>() ?? RocketPropulsionState();
-      if (!rocket.has<RocketPropulsionState>()) {
-        rocket.add(propulsion);
-      }
+      final propulsion = rocket.get<RocketPropulsionState>();
 
       final canThrust = engine.enabled && fuelTank.fuel > 0;
       final thrusting = canThrust && thrustInput;
@@ -41,6 +38,25 @@ class RocketControlSystem extends System {
       propulsion.boosting = boosting;
 
       emitter?.enabled = thrusting;
+      if (boosting) {
+        emitter
+          ?..spawnRate = 80
+          ..initialVelocity.y = 400
+          ..colors = [
+            Color.fromARGB(255, 52, 110, 255),
+            Color.fromARGB(255, 52, 160, 255),
+            Color.fromARGB(255, 52, 225, 255),
+          ];
+      } else {
+        emitter
+          ?..spawnRate = 40
+          ..initialVelocity.y = 200
+          ..colors = [
+            Color(0xffff0000),
+            Color.fromARGB(255, 255, 94, 0),
+            Color.fromARGB(255, 255, 149, 0),
+          ];
+      }
 
       if (!canThrust) {
         continue;

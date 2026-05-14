@@ -1,8 +1,7 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/astronaut/astronaut_tag.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
-import 'package:space_game/game/rocket/components/eva.dart';
-import 'package:space_game/game/rocket/rescue/rescue_attempt_event.dart';
+import 'package:space_game/game/interaction/interaction_event.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
 
 class AstronautRescueSystem extends System {
@@ -12,19 +11,16 @@ class AstronautRescueSystem extends System {
 
   @override
   void update(double dt, World world, Commands commands) {
-    if (eventBus.read<RescueAttemptEvent>().isNotEmpty) {
-      final rocket = world.query<RocketTag>().firstOrNull;
-      if (rocket == null) return;
+    final rocket = world.query<RocketTag>().firstOrNull;
+    if (rocket == null) return;
 
-      final eva = rocket.get<Eva>();
+    for (final event in eventBus.read<InteractionEvent>()) {
+      final entity = event.entity;
 
-      for (final entity in eva.interactables) {
-        if (!entity.has<AstronautTag>()) continue;
+      if (!entity.has<AstronautTag>()) continue;
 
-        final locationStore = entity.get<AstronautLocationStore>();
-
-        locationStore.location = AstronautLocationInRocket();
-      }
+      entity.get<AstronautLocationStore>().location =
+          AstronautLocationInRocket();
     }
   }
 }

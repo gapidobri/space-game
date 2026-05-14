@@ -1,45 +1,44 @@
-import 'package:gamengine/gamengine.dart';
-import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/stage/components/stage_state.dart';
 
 class HudData {
   const HudData({
-    this.loading = true,
-    this.maxFuel = 0,
-    this.fuel = 0,
-    this.maxHealth = 0,
-    this.health = 0,
-    this.rocketLocation,
-    this.canRescue = false,
-    this.minables = const [],
-    this.objectives = const [],
+    this.runTimer,
+    this.stageTimer,
+    this.stageIndex,
+    this.loadingOverlayOpacity = 1.0,
+    this.fuel = 1.0,
+    this.health = 1.0,
+    this.requiredObjectives = const [],
+    this.optionalObjectives = const [],
     this.runPhase,
     this.stagePhase,
   });
 
-  final bool loading;
+  final double loadingOverlayOpacity;
 
-  final double maxFuel;
   final double fuel;
-
-  final double maxHealth;
   final double health;
 
-  final RocketLocation? rocketLocation;
+  final List<ObjectiveData> requiredObjectives;
+  final List<ObjectiveData> optionalObjectives;
 
-  final bool canRescue;
-  final List<Entity> minables;
-
-  final List<ObjectiveData> objectives;
+  final int? stageIndex;
+  final double? runTimer;
+  final double? stageTimer;
 
   final RunPhase? runPhase;
   final StagePhase? stagePhase;
 }
 
 class ObjectiveData {
-  const ObjectiveData({required this.name, required this.completed});
+  ObjectiveData({
+    required this.name,
+    required this.completed,
+    required this.total,
+  });
 
   final String name;
-  final bool completed;
+  int completed;
+  int total;
 }

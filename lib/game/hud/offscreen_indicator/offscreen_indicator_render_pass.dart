@@ -14,7 +14,7 @@ class OffscreenIndicatorRenderPass extends RenderPass {
   }) {
     final viewRect = camera.worldViewRect;
     final center = viewRect.center;
-    final edgeRect = viewRect.deflate(24.0);
+    final edgeRect = viewRect.deflate(32.0);
 
     for (final entity in world.query2<Transform, OffscreenIndicator>()) {
       final indicator = entity.get<OffscreenIndicator>();
@@ -42,12 +42,26 @@ class OffscreenIndicatorRenderPass extends RenderPass {
           : (edgeRect.height * 0.5) / dy.abs();
       final t = scaleX < scaleY ? scaleX : scaleY;
 
+      final position = Offset(center.dx + dx * t, center.dy + dy * t);
+
+      queue.add(
+        DrawSpriteCommand(
+          image: indicator.image.data,
+          position: position,
+          scaleX: indicator.scale,
+          scaleY: indicator.scale,
+          z: 10000,
+        ),
+      );
+
       queue.add(
         DrawCircleCommand(
-          center: Offset(center.dx + dx * t, center.dy + dy * t),
-          radius: 8,
-          z: 10000,
-          paint: Paint()..color = Color(0xff00ff00),
+          center: position,
+          radius: 16,
+          z: 9000,
+          paint: Paint()
+            ..color = Color.fromARGB(255, 0, 255, 17)
+            ..maskFilter = MaskFilter.blur(.normal, 16.0),
         ),
       );
     }

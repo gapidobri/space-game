@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
 import 'package:space_game/game/astronaut/astronaut_tag.dart';
-import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
 
 Entity createAstronaut({
   required Asset<Image> image,
@@ -22,9 +21,6 @@ Entity createAstronaut({
 
   // gameplay
   entity.add(AstronautLocationStore(location: location));
-
-  // ui
-  entity.add(OffscreenIndicator());
 
   // cleanup
   if (parent != null) {

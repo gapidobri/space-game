@@ -40,6 +40,10 @@ class DamageSystem extends System {
     if (damageDealerEntity.has<ConstantDamageDealer>()) {
       final damageDealer = damageDealerEntity.get<ConstantDamageDealer>();
       applied = damageDealer.damage;
+
+      if (damageDealer.destroyOnCollision) {
+        commands.despawn(damageDealerEntity);
+      }
     } else if (damageDealerEntity.has<VelocityDamageDealer>()) {
       final damageDealer = damageDealerEntity.get<VelocityDamageDealer>();
       if (relativeSpeed < damageDealer.minVelocity) return;

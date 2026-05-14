@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/projectile/homing.dart';
 import 'package:space_game/game/projectile/projectile_tag.dart';
+import 'package:space_game/game/shared/collision/collision_layers.dart';
 import 'package:space_game/game/shared/damage/damage_dealer.dart';
 import 'package:space_game/game/shared/lifetime/lifetime.dart';
 
@@ -54,13 +55,13 @@ Entity createBullet({
 
   entity.add(AnimatedSprite(frameWidth: 4, frameHeight: 16, frameCount: 4));
 
-  // entity.add(
-  //   CircleCollider(
-  //     radius: 1,
-  //     collisionLayer: projectileLayer,
-  //     collisionMask: defaultLayer | rocketLayer,
-  //   ),
-  // );
+  entity.add(
+    CircleCollider(
+      radius: 1,
+      collisionLayer: projectileLayer,
+      collisionMask: defaultLayer | rocketLayer,
+    ),
+  );
 
   entity.add(
     VelocityDamageDealer(damageMultiplier: 0.001, destroyOnCollision: true),
@@ -88,10 +89,54 @@ Entity createTorpedo({
 
   entity.add(AnimatedSprite(frameWidth: 11, frameHeight: 32, frameCount: 3));
 
-  entity.add(ConstantDamageDealer(damage: 10, destroyOnCollision: true));
+  entity.add(
+    RectangleCollider(
+      halfWidth: 3,
+      halfHeight: 8,
+      collisionLayer: projectileLayer,
+      collisionMask: defaultLayer | rocketLayer,
+    ),
+  );
+
+  entity.add(ConstantDamageDealer(damage: 1, destroyOnCollision: true));
   entity.add(Lifetime(remainingTime: 10));
 
   entity.add(Homing(target: target));
+
+  return entity;
+}
+
+Entity createBigBullet({
+  required Asset<Image> image,
+  required Vector2 position,
+  required double rotation,
+  required Vector2 velocity,
+  Entity? parent,
+}) {
+  final entity = createProjectile(
+    image: image,
+    position: position,
+    rotation: rotation,
+    velocity: velocity,
+    parent: parent,
+  );
+
+  entity.get<Transform>().scale.setValues(1.0, 1.0);
+
+  entity.add(AnimatedSprite(frameWidth: 8, frameHeight: 16, frameCount: 4));
+
+  entity.add(
+    CircleCollider(
+      radius: 2,
+      collisionLayer: projectileLayer,
+      collisionMask: defaultLayer | rocketLayer,
+    ),
+  );
+
+  entity.add(
+    VelocityDamageDealer(damageMultiplier: 0.005, destroyOnCollision: true),
+  );
+  entity.add(Lifetime(remainingTime: 5));
 
   return entity;
 }

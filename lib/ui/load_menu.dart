@@ -3,8 +3,31 @@ import 'package:go_router/go_router.dart';
 import 'package:space_game/game/persistence/persistence.dart';
 import 'package:space_game/ui/widgets/button.dart';
 
-class LoadMenu extends StatelessWidget {
+class LoadMenu extends StatefulWidget {
   const LoadMenu({super.key});
+
+  @override
+  State<LoadMenu> createState() => _LoadMenuState();
+}
+
+class _LoadMenuState extends State<LoadMenu> {
+  List<String>? saves;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSaves();
+  }
+
+  void _loadSaves() async {
+    final s = await Persistence.instance.listSaves();
+    setState(() => saves = s);
+  }
+
+  void _deleteSave(String fileName) async {
+    await Persistence.instance.deleteSave(fileName);
+    _loadSaves();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,47 +45,43 @@ class LoadMenu extends StatelessWidget {
           ),
         ),
         SizedBox(height: 128.0),
-        FutureBuilder(
-          future: Persistence.instance.listSaves(),
-          builder: (context, future) {
-            final saves = future.data;
-            if (saves == null) {
-              return CircularProgressIndicator();
-            }
-
-            if (saves.isEmpty) {
-              return Text(
-                'No saves found',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w700,
-                ),
-              );
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: saves.length,
-              itemBuilder: (context, index) {
-                final saveFile = saves[index];
-                return ListTile(
-                  title: Text(
-                    saveFile,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.w700,
-                    ),
+        if (saves == null)
+          CircularProgressIndicator()
+        else if (saves!.isEmpty)
+          Text(
+            'No saves found',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24.0,
+              fontWeight: FontWeight.w700,
+            ),
+          )
+        else
+          SingleChildScrollView(
+            child: Column(
+              spacing: 8.0,
+              children: [
+                for (final save in saves!)
+                  Row(
+                    mainAxisSize: .min,
+                    children: [
+                      MenuButton.text(
+                        onClick: () => context.go('/game', extra: save),
+                        text: save,
+                      ),
+                      const SizedBox(width: 16.0),
+                      MenuButton(
+                        onClick: () => _deleteSave(save),
+                        child: Image.asset('assets/icons/trash.png'),
+                      ),
+                    ],
                   ),
-                  onTap: () => context.go('/game', extra: saveFile),
-                );
-              },
-            );
-          },
-        ),
+              ],
+            ),
+          ),
+
         SizedBox(height: 128.0),
-        Button(text: 'Back', onClick: () => context.pop()),
+        MenuButton.text(text: 'Back', onClick: () => context.pop()),
       ],
     );
   }

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart' hide Transform;
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/alien/alien_factory.dart';
 import 'package:space_game/game/app/game_session.dart';
-import 'package:space_game/game/projectile/projectile_factory.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
 import 'package:space_game/game/run/components/current_stage.dart';
 
 class Console extends StatefulWidget {
-  const Console({super.key, required this.session});
+  const Console({super.key, required this.session, required this.onClose});
 
   final GameSession session;
+  final Function() onClose;
 
   @override
   State<Console> createState() => _ConsoleState();
@@ -63,6 +63,21 @@ class _ConsoleState extends State<Console> {
         engine.addEntity(alien);
         break;
 
+      case 'spawn frigate':
+        final alien = createAlienFrigate(
+          image: await assetManager.loadImage('assets/aliens/frigate.png'),
+          position:
+              engine.world
+                  .query<RocketTag>()
+                  .firstOrNull!
+                  .get<Transform>()
+                  .position +
+              Vector2(0, -100),
+          parent: engine.world.tryGetComponent<CurrentStage>()?.stage,
+        );
+        engine.addEntity(alien);
+        break;
+
       case 'spawn torpedo':
         final alien = createAlienTorpedo(
           image: await assetManager.loadImage('assets/aliens/torpedo.png'),
@@ -72,7 +87,22 @@ class _ConsoleState extends State<Console> {
                   .firstOrNull!
                   .get<Transform>()
                   .position +
-              Vector2(0, 200),
+              Vector2(0, 700),
+          parent: engine.world.tryGetComponent<CurrentStage>()?.stage,
+        );
+        engine.addEntity(alien);
+        break;
+
+      case 'spawn dreadnought':
+        final alien = createAlienDreadnought(
+          image: await assetManager.loadImage('assets/aliens/dreadnought.png'),
+          position:
+              engine.world
+                  .query<RocketTag>()
+                  .firstOrNull!
+                  .get<Transform>()
+                  .position +
+              Vector2(0, 0),
           parent: engine.world.tryGetComponent<CurrentStage>()?.stage,
         );
         engine.addEntity(alien);
@@ -93,6 +123,15 @@ class _ConsoleState extends State<Console> {
       child: Column(
         crossAxisAlignment: .start,
         children: [
+          Row(
+            mainAxisAlignment: .end,
+            children: [
+              GestureDetector(
+                onTap: widget.onClose,
+                child: Text('x', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,

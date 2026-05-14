@@ -4,6 +4,8 @@ import 'package:space_game/game/entry_portal/entry_portal_state.dart';
 import 'package:space_game/game/entry_portal/entry_portal_tag.dart';
 import 'package:space_game/game/rocket/components/rocket_engine.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
+import 'package:space_game/game/run/components/run_state.dart';
+import 'package:space_game/game/run/run_tag.dart';
 
 const _animationCurve = Curves.easeIn;
 
@@ -15,20 +17,30 @@ class EntryPortalTransitionSystem extends System {
 
     final rocket = world.query<RocketTag>().firstOrNull;
     final engine = rocket?.get<RocketEngine>();
+    final rigidBody = rocket?.get<RigidBody>();
 
     final portalTransform = portal.get<Transform>();
 
     final state = portal.get<EntryPortalState>();
     switch (state.status) {
+      case .initial:
+        state.openProgress = 0;
+        rocket?.get<Transform>().scale.setFrom(Vector2.zero());
+        engine?.enabled = false;
+        rigidBody?.isStatic = true;
+
+        final run = world.query<RunTag>().first;
+        if (run.get<RunState>().phase == .stagePlay) {
+          state.status = .opening;
+        }
+        break;
+
       case .opening:
         state.openProgress += dt;
         if (state.openProgress >= 1) {
           state.openProgress = 1;
           state.status = .teleporting;
         }
-
-        rocket?.get<Transform>().scale.setFrom(Vector2.zero());
-        engine?.enabled = false;
         break;
 
       case .teleporting:
@@ -38,6 +50,7 @@ class EntryPortalTransitionSystem extends System {
           state.teleportProgress = 1;
           state.status = .closing;
           engine?.enabled = true;
+          rigidBody?.isStatic = false;
         }
         rocket?.get<Transform>().scale.setFrom(
           Vector2.all(2 * _animationCurve.transform(state.teleportProgress)),
@@ -45,6 +58,7 @@ class EntryPortalTransitionSystem extends System {
         break;
 
       case .closing:
+        rocket?.get<RectangleCollider>().enabled = true;
         state.openProgress -= dt;
         if (state.openProgress <= 0) {
           state.openProgress = 0;

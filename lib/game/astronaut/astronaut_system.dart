@@ -6,7 +6,9 @@ import 'package:space_game/game/interaction/interaction_target.dart';
 import 'package:space_game/game/planet/occupancy/planet_occupant.dart';
 
 class AstronautSystem extends System {
-  AstronautSystem({super.priority});
+  AstronautSystem({required this.assetManager});
+
+  final AssetManager assetManager;
 
   @override
   void update(double dt, World world, Commands commands) {
@@ -22,7 +24,7 @@ class AstronautSystem extends System {
           if (!astronaut.has<InteractionTarget>()) {
             commands.addComponent<InteractionTarget>(
               astronaut,
-              InteractionTarget(),
+              InteractionTarget(interactionText: 'Rescue'),
             );
           }
           if (!astronaut.has<PlanetOccupant>()) {
@@ -34,7 +36,9 @@ class AstronautSystem extends System {
           if (!astronaut.has<OffscreenIndicator>()) {
             commands.addComponent<OffscreenIndicator>(
               astronaut,
-              OffscreenIndicator(),
+              OffscreenIndicator(
+                image: assetManager.image('assets/astronaut/indicator.png')!,
+              ),
             );
           }
           break;

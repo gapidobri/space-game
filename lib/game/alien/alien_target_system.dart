@@ -19,7 +19,8 @@ class AlienTargetSystem extends System {
     for (final alien in world.query<AlienTag>()) {
       final transform = alien.get<Transform>();
       final rigidBody = alien.get<RigidBody>();
-      final weapon = alien.get<Weapon>();
+      final weapon = alien.tryGet<Weapon>();
+      if (weapon == null) continue;
 
       final rocketDir = (rocketTransform.position - transform.position)
           .normalized();
@@ -28,7 +29,7 @@ class AlienTargetSystem extends System {
 
       Vector2 desiredDir;
       switch (weapon.projectileType) {
-        case .bullet:
+        case .bullet || .bigBullet:
           final desiredWorldVel = rocketDir * weapon.projectileSpeed;
 
           final shotVelocity = desiredWorldVel - rigidBody.velocity;

@@ -9,6 +9,7 @@ import 'package:space_game/game/exit_portal/exit_portal_tag.dart';
 Entity createExitPortal({
   required ExitPortalSpawnSpec spec,
   required Asset<Image> image,
+  required Asset<Image> offscreenIndicatorImage,
   Entity? parent,
 }) {
   final ExitPortalSpawnSpec(:position) = spec;
@@ -35,7 +36,13 @@ Entity createExitPortal({
   entity.add(CircleCollider(radius: 50));
 
   entity.add(ExitPortalState());
-  entity.add(OffscreenIndicator(enabled: false));
+  entity.add(
+    OffscreenIndicator(
+      enabled: false,
+      image: offscreenIndicatorImage,
+      scale: 0.5,
+    ),
+  );
 
   if (parent != null) {
     entity.add(Parent(parent: parent));

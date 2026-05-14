@@ -1,6 +1,6 @@
 import 'package:gamengine/gamengine.dart';
 
-enum ProjectileType { bullet, torpedo }
+enum ProjectileType { bullet, bigBullet, torpedo }
 
 class Weapon extends Component {
   Weapon({
@@ -17,7 +17,7 @@ class Weapon extends Component {
   final double projectileSpeed;
   final ProjectileType projectileType;
 
-  final Map<int, Vector2> shootFrames;
+  final Map<int, List<Vector2>> shootFrames;
 
   int lastFrame;
   double cooldownRemaining;

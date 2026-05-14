@@ -29,7 +29,7 @@ class ParticleEmitter extends Component {
   final Entity? velocitySource;
   final Vector2 initialVelocity;
   final Vector2 randomSpawnOffset;
-  final List<Color> colors;
+  List<Color> colors;
   final Size particleSize;
 
   double minLifetime;

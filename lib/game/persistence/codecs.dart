@@ -222,12 +222,15 @@ class _OffscreenIndicatorCodec extends ComponentCodec<OffscreenIndicator> {
   String get typeId => 'hud.offscreenIndicator';
 
   @override
-  OffscreenIndicator decode(Map<String, Object?> data) =>
-      OffscreenIndicator(enabled: decodeBool(data, 'enabled')!);
+  OffscreenIndicator decode(Map<String, Object?> data) => OffscreenIndicator(
+    enabled: decodeBool(data, 'enabled')!,
+    image: decodeImage(data, 'image'),
+  );
 
   @override
   Map<String, Object?> encode(OffscreenIndicator component) => {
     'enabled': component.enabled,
+    'image': encodeImage(component.image),
   };
 }
 
@@ -236,10 +239,13 @@ class _InteractionTargetCodec extends ComponentCodec<InteractionTarget> {
   String get typeId => 'interaction.target';
 
   @override
-  InteractionTarget decode(Map<String, Object?> data) => InteractionTarget();
+  InteractionTarget decode(Map<String, Object?> data) =>
+      InteractionTarget(interactionText: data['interactionText'] as String);
 
   @override
-  Map<String, Object?> encode(InteractionTarget component) => {};
+  Map<String, Object?> encode(InteractionTarget component) => {
+    'interactionText': component.interactionText,
+  };
 }
 
 class _InteractionIndicatorRefCodec

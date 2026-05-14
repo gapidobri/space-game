@@ -1,10 +1,10 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/interaction/interaction_target.dart';
-import 'package:space_game/game/interaction/interaction_attempt_event.dart';
 import 'package:space_game/game/interaction/interaction_event.dart';
 import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
+import 'package:space_game/game/shared/input/input.dart';
 
 class InteractionSystem extends System {
   InteractionSystem({super.priority, required this.eventBus});
@@ -36,10 +36,13 @@ class InteractionSystem extends System {
       eva.interactables.add(entity);
     }
 
-    for (final event in eventBus.read<InteractionAttemptEvent>()) {
-      if (eva.interactables.contains(event.entity)) {
-        eventBus.emit(InteractionEvent(entity: event.entity));
-      }
+    for (final event in eventBus.read<InputEvent<InputAction>>()) {
+      if (event.action != .interact) continue;
+
+      final interactable = eva.interactables.firstOrNull;
+      if (interactable == null) continue;
+
+      eventBus.emit(InteractionEvent(entity: interactable));
     }
   }
 }

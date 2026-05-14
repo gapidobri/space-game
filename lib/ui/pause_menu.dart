@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_game/ui/settings/settings_menu.dart';
 import 'package:space_game/ui/widgets/button.dart';
+import 'package:space_game/ui/widgets/save_dialog.dart';
 
 class PauseMenu extends StatefulWidget {
   const PauseMenu({super.key, required this.onResume, required this.onSave});
 
   final void Function() onResume;
-  final void Function() onSave;
+  final void Function(String) onSave;
 
   @override
   State<PauseMenu> createState() => _PauseMenuState();
@@ -41,13 +42,27 @@ class _PauseMenuState extends State<PauseMenu> {
                     mainAxisSize: MainAxisSize.min,
                     spacing: 16.0,
                     children: [
-                      Button(text: 'Resume', onClick: widget.onResume),
-                      Button(
+                      MenuButton.text(text: 'Resume', onClick: widget.onResume),
+                      MenuButton.text(
                         text: 'Settings',
                         onClick: () => setState(() => _showSettings = true),
                       ),
-                      Button(text: 'Save', onClick: widget.onSave),
-                      Button(text: 'Leave', onClick: () => context.go('/')),
+                      MenuButton.text(
+                        text: 'Save',
+                        onClick: () async {
+                          final result = await showDialog<String?>(
+                            context: context,
+                            builder: (context) => SaveDialog(),
+                          );
+                          if (result == null) return;
+
+                          widget.onSave(result);
+                        },
+                      ),
+                      MenuButton.text(
+                        text: 'Leave',
+                        onClick: () => context.go('/'),
+                      ),
                     ],
                   ),
                 ],

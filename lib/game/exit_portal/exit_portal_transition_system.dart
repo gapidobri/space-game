@@ -45,6 +45,8 @@ class ExitPortalTransitionSystem extends System {
 
         final rocketTransform = rocket.get<Transform>();
         final rigidBody = rocket.get<RigidBody>();
+        rocket.get<RectangleCollider>().enabled = false;
+
         rigidBody.velocity.setZero();
         rigidBody.angularVelocity = 0;
 

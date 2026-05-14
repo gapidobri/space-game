@@ -1,6 +1,7 @@
 import 'package:gamengine/gamengine.dart';
 import 'package:space_game/game/rocket/events/rocket_destroyed_event.dart';
 import 'package:space_game/game/run/components/current_stage.dart';
+import 'package:space_game/game/run/components/loading_overlay_state.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/run/events/run_phase_changed_event.dart';
 import 'package:space_game/game/run/run_tag.dart';
@@ -25,20 +26,29 @@ class RunFlowSystem extends System {
     switch (runState.phase) {
       case .runStart: // -> stageEnter
         // setup player state
-        _changePhase(runState, .stageEnter);
+        _changePhase(runState, .stageSetup);
         break;
 
-      case .stageEnter: // -> stagePlay, finalBoss
+      // Generate stage
+      case .stageSetup: // -> stagePlay, finalBoss
         if (stage == null ||
             stage.get<StageSetupState>().status != .ready ||
             !stage.get<StageTransitionState>().playerPlaced) {
           break;
         }
+        _changePhase(runState, .stageEnter);
+        break;
+
+      // Fade out loading overlay
+      case .stageEnter:
+        final loadingOverlayState = run.get<LoadingOverlayState>();
+        if (loadingOverlayState.opacity > 0) break;
+
         _changePhase(runState, .stagePlay);
         break;
 
+      // Gameplay
       case .stagePlay: // -> stageExit, runFailed
-        // normal gameplay
         if (stage?.get<StageState>().phase == .leaving) {
           _changePhase(runState, .stageExit);
           break;
@@ -54,9 +64,10 @@ class RunFlowSystem extends System {
         _changePhase(runState, .stageTransition);
         break;
 
-      case .stageTransition: // -> stageEnter
+      case .stageTransition: // -> stageSetup
         // cleanup, increase difficulty
-        _changePhase(runState, .stageEnter);
+        runState.stageIndex++;
+        _changePhase(runState, .stageSetup);
         break;
 
       case .finalBoss: // -> runComplete, runFailed
