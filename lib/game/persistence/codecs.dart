@@ -1,5 +1,11 @@
 import 'package:gamengine/gamengine.dart';
+import 'package:space_game/game/alien/alien_state.dart';
 import 'package:space_game/game/alien/alien_tag.dart';
+import 'package:space_game/game/alien/alien_type.dart';
+import 'package:space_game/game/alien/animation/alien_animation_state.dart';
+import 'package:space_game/game/alien/destruction/alien_destruction_state.dart';
+import 'package:space_game/game/alien/spawner/alien_spawner.dart';
+import 'package:space_game/game/alien/weapon/weapon.dart';
 import 'package:space_game/game/astronaut/astronaut_location.dart';
 import 'package:space_game/game/astronaut/astronaut_tag.dart';
 import 'package:space_game/game/background/parallax.dart';
@@ -25,23 +31,35 @@ import 'package:space_game/game/rocket/components/eva.dart';
 import 'package:space_game/game/rocket/components/fuel_tank.dart';
 import 'package:space_game/game/rocket/components/rocket_location.dart';
 import 'package:space_game/game/rocket/components/rocket_engine.dart';
+import 'package:space_game/game/rocket/components/rocket_propulsion_state.dart';
 import 'package:space_game/game/rocket/rocket_tag.dart';
 import 'package:space_game/game/run/components/current_stage.dart';
 import 'package:space_game/game/run/components/difficulty_state.dart';
+import 'package:space_game/game/run/components/loading_overlay_state.dart';
 import 'package:space_game/game/run/components/run_state.dart';
 import 'package:space_game/game/run/run_tag.dart';
+import 'package:space_game/game/settings/audio_settings.dart';
 import 'package:space_game/game/shared/damage/damage_dealer.dart';
 import 'package:space_game/game/shared/damage/health.dart';
 import 'package:space_game/game/sound/background_music/background_music.dart';
+import 'package:space_game/game/stage/components/stage_config_store.dart';
 import 'package:space_game/game/stage/components/stage_setup_state.dart';
 import 'package:space_game/game/stage/components/stage_spawn_point.dart';
 import 'package:space_game/game/stage/components/stage_state.dart';
 import 'package:space_game/game/stage/components/stage_transition_state.dart';
+import 'package:space_game/game/stage/stage_config.dart';
 import 'package:space_game/game/stage/stage_tag.dart';
 
 void registerCodecs(WorldStateSerializer serializer) {
   // alien
   serializer.registerCodec<AlienTag>(_AlienTagCodec());
+  serializer.registerCodec<AlienAnimationState>(_AlienAnimationStateCodec());
+  serializer.registerCodec<AlienDestructionState>(
+    _AlienDestructionStateCodec(),
+  );
+  serializer.registerCodec<AlienSpawner>(_AlienSpawnerCodec());
+  serializer.registerCodec<Weapon>(_AlienWeaponCodec());
+  serializer.registerCodec<AlienState>(_AlienState());
 
   // astronaut
   serializer.registerCodec<AstronautTag>(_AstronautTagCodec());
@@ -94,6 +112,9 @@ void registerCodecs(WorldStateSerializer serializer) {
   serializer.registerCodec<FuelTank>(_FuelTankCodec());
   serializer.registerCodec<RocketEngine>(_RocketEngineCodec());
   serializer.registerCodec<RocketLocationStore>(_RocketLocationStoreCodec());
+  serializer.registerCodec<RocketPropulsionState>(
+    _RocketPropulsionStateCodec(),
+  );
 
   // damage
   serializer.registerCodec<ConstantDamageDealer>(_ConstantDamageDealerCodec());
@@ -105,6 +126,7 @@ void registerCodecs(WorldStateSerializer serializer) {
   serializer.registerCodec<CurrentStage>(_CurrentStageCodec());
   serializer.registerCodec<DifficultyState>(_DifficultyStateCodec());
   serializer.registerCodec<RunState>(_RunStateCodec());
+  serializer.registerCodec<LoadingOverlayState>(_LoadingOverlayStateCodec());
 
   // stage
   serializer.registerCodec<StageTag>(_StageTagCodec());
@@ -112,9 +134,11 @@ void registerCodecs(WorldStateSerializer serializer) {
   serializer.registerCodec<StageSpawnPoint>(_StageSpawnPointCodec());
   serializer.registerCodec<StageState>(_StageStateCodec());
   serializer.registerCodec<StageTransitionState>(_StageTransitionStateCodec());
+  serializer.registerCodec<StageConfigStore>(_StageConfigStoreCodec());
 
   // sound
   serializer.registerCodec<BackgroundMusic>(_BackgroundMusicCodec());
+  serializer.registerCodec<AudioSettings>(_AudioSettingsCodec());
 }
 
 class _AlienTagCodec extends ComponentCodec<AlienTag> {
@@ -126,6 +150,106 @@ class _AlienTagCodec extends ComponentCodec<AlienTag> {
 
   @override
   Map<String, Object?> encode(AlienTag component) => {};
+}
+
+class _AlienAnimationStateCodec extends ComponentCodec<AlienAnimationState> {
+  @override
+  String get typeId => 'alien.animationState';
+
+  @override
+  AlienAnimationState decode(Map<String, Object?> data) => AlienAnimationState(
+    status: AlienAnimationStatus.values.firstWhere(
+      (v) => v.name == data['status'],
+    ),
+  );
+
+  @override
+  Map<String, Object?> encode(AlienAnimationState component) => {
+    'status': component.status.name,
+  };
+}
+
+class _AlienDestructionStateCodec
+    extends ComponentCodec<AlienDestructionState> {
+  @override
+  String get typeId => 'alien.destructionState';
+
+  @override
+  AlienDestructionState decode(Map<String, Object?> data) =>
+      AlienDestructionState(
+        status: AlienDestructionStatus.values.firstWhere(
+          (v) => v.name == data['status'],
+        ),
+      );
+
+  @override
+  Map<String, Object?> encode(AlienDestructionState component) => {
+    'status': component.status.name,
+  };
+}
+
+class _AlienSpawnerCodec extends ComponentCodec<AlienSpawner> {
+  @override
+  String get typeId => 'alien.spawner';
+
+  @override
+  AlienSpawner decode(Map<String, Object?> data) => AlienSpawner(
+    type: AlienType.values.firstWhere((v) => v.name == data['type']),
+    cooldown: decodeDouble(data, 'cooldown')!,
+  );
+
+  @override
+  Map<String, Object?> encode(AlienSpawner component) => {
+    'type': component.type.name,
+    'cooldown': component.cooldown,
+  };
+}
+
+class _AlienWeaponCodec extends ComponentCodec<Weapon> {
+  @override
+  String get typeId => 'alien.weapon';
+
+  @override
+  Weapon decode(Map<String, Object?> data) => Weapon(
+    cooldown: decodeDouble(data, 'cooldown')!,
+    projectileSpeed: decodeDouble(data, 'projectileSpeed')!,
+    projectileType: ProjectileType.values.firstWhere(
+      (v) => v.name == data['projectileType'],
+    ),
+    shootFrames: (data['shootFrames'] as Map<String, dynamic>).map(
+      (key, value) =>
+          MapEntry(int.parse(key), (value as List).map(decodeVector2).toList()),
+    ),
+    lastFrame: decodeInt(data, 'lastFrame')!,
+    cooldownRemaining: decodeDouble(data, 'cooldownRemaining')!,
+  );
+
+  @override
+  Map<String, Object?> encode(Weapon component) => {
+    'cooldown': component.cooldown,
+    'projectileSpeed': component.projectileSpeed,
+    'projectileType': component.projectileType.name,
+    'shootFrames': component.shootFrames.map(
+      (key, value) =>
+          MapEntry(key.toString(), value.map(encodeVector2).toList()),
+    ),
+    'lastFrame': component.lastFrame,
+    'cooldownRemaining': component.cooldownRemaining,
+  };
+}
+
+class _AlienState extends ComponentCodec<AlienState> {
+  @override
+  String get typeId => 'alien.state';
+
+  @override
+  AlienState decode(Map<String, Object?> data) =>
+      AlienState(shooting: decodeBool(data, 'shooting')!);
+
+  @override
+  Map<String, Object?> encode(AlienState component) => {
+    'shooting': component.shooting,
+  };
 }
 
 class _AstronautTagCodec extends ComponentCodec<AstronautTag> {
@@ -372,8 +496,8 @@ class _ParticleEmitterCodec extends ComponentCodec<ParticleEmitter> {
       turbulence: decodeDouble(data, 'turbulence')!,
       spawnCount: decodeInt(data, 'spawnCount')!,
       fadeOutTime: decodeDouble(data, 'fadeOutTime')!,
-      initialVelocity: decodeVector2(data, 'initialVelocity'),
-      randomSpawnOffset: decodeVector2(data, 'randomSpawnOffset'),
+      initialVelocity: decodeVector2(data['initialVelocity']),
+      randomSpawnOffset: decodeVector2(data['randomSpawnOffset']),
       minLifetime: decodeDouble(data, 'minLifetime'),
     );
   }
@@ -584,6 +708,25 @@ class _RocketLocationStoreCodec extends ComponentCodec<RocketLocationStore> {
   }
 }
 
+class _RocketPropulsionStateCodec
+    extends ComponentCodec<RocketPropulsionState> {
+  @override
+  String get typeId => 'rocket.propulsionState';
+
+  @override
+  RocketPropulsionState decode(Map<String, Object?> data) =>
+      RocketPropulsionState(
+        thrusting: decodeBool(data, 'thrusting')!,
+        boosting: decodeBool(data, 'boosting')!,
+      );
+
+  @override
+  Map<String, Object?> encode(RocketPropulsionState component) => {
+    'thrusting': component.thrusting,
+    'boosting': component.boosting,
+  };
+}
+
 class _RunTag extends ComponentCodec<RunTag> {
   @override
   String get typeId => 'run.tag';
@@ -637,6 +780,20 @@ class _RunStateCodec extends ComponentCodec<RunState> {
   Map<String, Object?> encode(RunState component) => {
     'phase': component.phase.name,
     'stageIndex': component.stageIndex,
+  };
+}
+
+class _LoadingOverlayStateCodec extends ComponentCodec<LoadingOverlayState> {
+  @override
+  String get typeId => 'run.loadingOverlayState';
+
+  @override
+  LoadingOverlayState decode(Map<String, Object?> data) =>
+      LoadingOverlayState(opacity: decodeDouble(data, 'opacity')!);
+
+  @override
+  Map<String, Object?> encode(LoadingOverlayState component) => {
+    'opacity': component.opacity,
   };
 }
 
@@ -721,7 +878,7 @@ class _StageSpawnPointCodec extends ComponentCodec<StageSpawnPoint> {
 
   @override
   StageSpawnPoint decode(Map<String, Object?> data) =>
-      StageSpawnPoint(playerPosition: decodeVector2(data, 'playerPosition'));
+      StageSpawnPoint(playerPosition: decodeVector2(data['playerPosition']));
 
   @override
   Map<String, Object?> encode(StageSpawnPoint component) => {
@@ -758,6 +915,21 @@ class _StageTransitionStateCodec extends ComponentCodec<StageTransitionState> {
   };
 }
 
+class _StageConfigStoreCodec extends ComponentCodec<StageConfigStore> {
+  @override
+  String get typeId => 'stage.configStore';
+
+  @override
+  StageConfigStore decode(Map<String, Object?> data) => StageConfigStore(
+    config: StageConfig.fromJson(data['config'] as Map<String, dynamic>),
+  );
+
+  @override
+  Map<String, Object?> encode(StageConfigStore component) => {
+    'config': component.config.toJson(),
+  };
+}
+
 class _BackgroundMusicCodec extends ComponentCodec<BackgroundMusic> {
   @override
   String get typeId => 'sound.backgroundMusic';
@@ -776,5 +948,22 @@ class _BackgroundMusicCodec extends ComponentCodec<BackgroundMusic> {
     'playing': component.playing,
     'fadeTime': component.fadeTime,
     'fadeProgress': component.fadeProgress,
+  };
+}
+
+class _AudioSettingsCodec extends ComponentCodec<AudioSettings> {
+  @override
+  String get typeId => 'sound.audioSettings';
+
+  @override
+  AudioSettings decode(Map<String, Object?> data) => AudioSettings(
+    musicVolume: decodeDouble(data, 'musicVolume')!,
+    sfxVolume: decodeDouble(data, 'sfxVolume')!,
+  );
+
+  @override
+  Map<String, Object?> encode(AudioSettings component) => {
+    'musicVolume': component.musicVolume,
+    'sfxVolume': component.sfxVolume,
   };
 }

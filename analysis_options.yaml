@@ -22,4 +22,4 @@ linter:
   # producing the lint.
   rules:
     prefer_single_quotes: true
-    sort_constructors_first: true
+    # sort_constructors_first: true

@@ -9,7 +9,7 @@ class OffscreenIndicator extends Component {
     this.scale = 1.0,
   });
 
-  final Asset<Image> image;
+  Asset<Image> image;
   final double scale;
   bool enabled;
 }

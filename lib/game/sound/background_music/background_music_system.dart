@@ -1,12 +1,16 @@
 import 'dart:math';
 
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:gamengine/gamengine.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:space_game/game/settings/audio_settings.dart';
 import 'package:space_game/game/sound/background_music/background_music.dart';
 
 class BackgroundMusicSystem extends System {
-  final _players = <Entity, AudioPlayer>{};
+  final _initing = <Entity>{};
+  final _sources = <Entity, AudioSource>{};
+  final _players = <Entity, SoundHandle>{};
+
+  final _instance = SoLoud.instance;
 
   @override
   bool get runWhenPaused => true;
@@ -18,15 +22,20 @@ class BackgroundMusicSystem extends System {
 
     for (final entity in world.query<BackgroundMusic>()) {
       final music = entity.get<BackgroundMusic>();
-      final player = _players.putIfAbsent(
-        entity,
-        () => AudioPlayer()
-          ..setAudioSource(AudioSource.asset(music.assetPath))
-          ..setLoopMode(.one)
-          ..setVolume(0),
-      );
+      var player = _players[entity];
+
+      if (_initing.contains(entity)) continue;
+      if (player == null) {
+        _initing.add(entity);
+        final sound = await _instance.loadAsset(music.assetPath);
+        player = _instance.play(sound, looping: false, volume: 0);
+        _players[entity] = player;
+        _sources[entity] = sound;
+        _initing.remove(entity);
+      }
+
       if (music.playing) {
-        player.play();
+        _instance.setPause(player, false);
         if (music.fadeProgress < 1) {
           music.fadeProgress += dt / music.fadeTime;
           music.fadeProgress = min(music.fadeProgress, 1);
@@ -36,11 +45,11 @@ class BackgroundMusicSystem extends System {
           music.fadeProgress -= dt / music.fadeTime;
           music.fadeProgress = max(music.fadeProgress, 0);
         } else {
-          player.pause();
+          _instance.setPause(player, true);
         }
       }
 
-      player.setVolume(musicVolume * music.fadeProgress);
+      _instance.setVolume(player, musicVolume * music.fadeProgress);
     }
 
     final toRemove = <Entity>[];
@@ -53,21 +62,25 @@ class BackgroundMusicSystem extends System {
         if (music.fadeProgress > 0) {
           music.fadeProgress -= dt / music.fadeTime;
           music.fadeProgress = max(music.fadeProgress, 0);
-          player.setVolume(musicVolume * music.fadeProgress);
+          _instance.setVolume(player, musicVolume * music.fadeProgress);
           continue;
         }
       }
 
-      player.dispose();
+      final source = _sources[entity];
+      if (source != null) {
+        _instance.disposeSource(source);
+      }
       toRemove.add(entity);
     }
     _players.removeWhere((e, p) => toRemove.contains(e));
+    _sources.removeWhere((e, p) => toRemove.contains(e));
   }
 
   @override
   void dispose() {
-    for (final player in _players.values) {
-      player.dispose();
+    for (final source in _sources.values) {
+      _instance.disposeSource(source);
     }
   }
 }

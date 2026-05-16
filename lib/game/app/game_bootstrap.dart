@@ -7,7 +7,7 @@ import 'package:space_game/game/settings/settings_factory.dart';
 Future<void> bootstrapGame(GameSession session) async {
   final GameSession(:engine, :assetManager) = session;
 
-  _preloadImages(session);
+  await _preloadImages(session);
 
   engine.addEntity(createSettings());
 

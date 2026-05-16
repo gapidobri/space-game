@@ -4,6 +4,7 @@ import 'package:gamengine/gamengine.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:space_game/game/app/game_session.dart';
+import 'package:space_game/game/hud/offscreen_indicator/offscreen_indicator.dart';
 import 'package:space_game/game/persistence/codecs.dart';
 
 class Persistence {
@@ -25,7 +26,10 @@ class Persistence {
   late final WorldStatePersistence<String> persistence;
 
   Future<void> saveGame(GameSession session, String name) async {
-    final saved = persistence.encodeWorld(session.engine.world);
+    final saved = persistence.encodeWorld(
+      session.engine.world,
+      throwOnUnregisteredComponent: true,
+    );
 
     final file = File(
       await getApplicationDocumentsDirectory().then(
@@ -76,5 +80,14 @@ class Persistence {
     final data = await file.readAsString();
     persistence.decodeIntoWorld(session.engine.world, data);
     await hydrateSprites(session.engine.world, session.assetManager);
+
+    for (final entity in session.engine.world.query<OffscreenIndicator>()) {
+      final indicator = entity.get<OffscreenIndicator>();
+      final image = await session.assetManager.loadImage(
+        indicator.image.path,
+        package: indicator.image.package,
+      );
+      indicator.image = image;
+    }
   }
 }

@@ -28,7 +28,6 @@ class StageSetupSystem extends System {
 
     final random = Random();
 
-    // TODO: generate config
     final stageConfig = StageConfig(
       stageSize: Vector2(10000, 10000),
       rescueObjectiveCount: 1,
@@ -50,9 +49,9 @@ class StageSetupSystem extends System {
         DifficultyStage(
           timer: 300,
           alienSpawners: [
-            AlienSpawnConfig(type: .fighter, delay: 15),
-            AlienSpawnConfig(type: .frigate, delay: 50),
-            AlienSpawnConfig(type: .torpedo, delay: 60),
+            // AlienSpawnConfig(type: .fighter, delay: 15),
+            // AlienSpawnConfig(type: .frigate, delay: 50),
+            // AlienSpawnConfig(type: .torpedo, delay: 60),
           ],
         ),
       ],

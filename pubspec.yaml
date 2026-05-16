@@ -20,6 +20,7 @@ dependencies:
   uuid: ^4.5.3
   just_audio: ^0.10.5
   shared_preferences: ^2.5.5
+  flutter_soloud: ^4.0.5
 
 dev_dependencies:
   flutter_test:
@@ -41,7 +42,7 @@ flutter:
     - assets/projectiles/
     - assets/icons/
     - assets/minerals/
-
+    - assets/sfx/
   fonts:
     - family: Doto
       fonts:

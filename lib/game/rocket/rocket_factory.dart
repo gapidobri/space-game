@@ -44,7 +44,7 @@ Entity createRocket({required Asset<Image> image}) {
   entity.add(RocketLocationStore(location: RocketLocationInSpace()));
   entity.add(Eva(maxInteractionRange: 100));
   entity.add(Health(maxHealth: 100));
-  entity.add(Drill(drillSpeed: 5));
+  entity.add(Drill(drillSpeed: 50));
   entity.add(VelocityDamageDealer(damageMultiplier: 0.1));
   entity.add(RocketPropulsionState());
 
